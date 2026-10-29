@@ -37,6 +37,9 @@ function render() {
  if(state.mode==='preorder'&&!preorderOnly()&&v?.preorder!==true)state.mode='query';
  if(state.mode==='stock')state.quantity=Math.min(state.quantity,v.quantity);
  $('#products').replaceChildren();products.forEach((p,i)=>{const b=document.createElement('button');b.type='button';b.className='product'+(i===state.product?' selected':'');b.setAttribute('aria-pressed',i===state.product);b.innerHTML=`<div class="thumb">${photo(p,0,true)}<span class="check">✓</span></div><b>${p.name}</b><em>${p.subtitle}</em>`;b.onclick=()=>{state.product=i;state.color=0;state.quantity=1;state.mode='query';render()};const wrap=document.createElement('div');wrap.className='product-card';const help=document.createElement('button');help.type='button';help.className='size-link card-size';help.textContent='Подобрать размер ↗';help.setAttribute('aria-label','Подобрать размер: '+p.name);help.onclick=()=>{state.product=i;state.color=0;state.quantity=1;state.mode='query';render();openSizeGuide()};wrap.append(b,help);$('#products').append(wrap)});
+ const copy=window.ACEFORM_DESCRIPTIONS[p.id];
+ $('#productStoryTitle').textContent=copy.title;$('#productStoryText').textContent=copy.text;$('#productStoryNote').textContent=copy.note;
+ $('#productBenefits').replaceChildren();for(const benefit of copy.benefits){const item=document.createElement('li');item.textContent=benefit;$('#productBenefits').append(item)}
  $('#studioTitle').textContent=p.name;$('#preview').innerHTML=photo(p,state.color);$('#colorName').textContent=p.colors[state.color][0];
  $('#photoCaption').textContent=p.id==='shorts'?'Визуализация по фото ACEFORM · одинаковый крой':(p.colors[state.color][2]?.includes('-catalog.')?'Каталожная визуализация по фото ACEFORM':'Фото ACEFORM · выбранный цвет');
  buttons($('#colors'),p.colors,state.color,i=>{state.color=i;state.quantity=1;state.mode='query';render()},true);
