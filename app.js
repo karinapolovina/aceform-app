@@ -25,10 +25,11 @@ function buttons(el,values,selected,fn,swatches=false) {
 }
 function preorderOnly(p=current()) {return commerce.preorderOnly(p);}
 function stockFresh() {return feedState==='ready'&&Date.now()-receivedAt<=90000;}
-function stockRows(p) {return commerce.stockRows(p,inventory,stockFresh());}
+// Keep the last confirmed catalog selection while refreshing. Checkout still requires fresh stock.
+function stockRows(p) {return commerce.stockRows(p,inventory,receivedAt>0);}
 function inStock() {return commerce.inStock(current(),variant(),stockFresh());}
 function orderLimit() {return state.mode==='stock'?commerce.orderLimit(current(),variant()):99;}
-function visibleProducts() {return products.filter(p=>commerce.matchesFilter(p,state.filter,inventory,stockFresh()));}
+function visibleProducts() {return products.filter(p=>commerce.matchesFilter(p,state.filter,inventory,receivedAt>0));}
 function bundleNeedsConfirmation() {return current().id==='dress'&&state.shortsSize!==state.size;}
 function unitPrice() {return commerce.unitPrice(current(),state.bundle,variant());}
 function selectProduct(i) {
@@ -53,7 +54,7 @@ function render() {
  if(state.filter==='stock'&&visible.length&&!stockRows(current()).some(v=>v.color===current().colors[state.color][0]&&v.size===state.size))selectProduct(state.product);
  const p=current(),v=variant(),a=availability(),hasSelection=visible.length>0;
  $('#productDetails').hidden=!hasSelection;$('#review').disabled=!hasSelection;
- $('#filterHint').textContent=state.filter==='stock'?(hasSelection?'Показаны изделия в наличии. Выберите цвет и размер.':'Сейчас нет изделий с подтверждённым наличием. Посмотрите предзаказ или все изделия.'):'';
+ $('#filterHint').textContent=state.filter==='stock'?(feedState==='loading'?'Обновляем наличие. Выбранный комплект сохранён.':feedState==='error'?'Не удалось подтвердить наличие. Обновите остатки перед оплатой.':hasSelection?'Показаны изделия в наличии. Выберите цвет и размер.':'Сейчас нет изделий с подтверждённым наличием. Посмотрите предзаказ или все изделия.'):'';
  buttons($('#catalogFilters'),['Все','В наличии','Предзаказ'],['all','stock','preorder'].indexOf(state.filter),i=>{state.filter=['all','stock','preorder'][i];state.quantity=1;render()});
 
  if(preorderOnly())state.mode='preorder';
@@ -103,7 +104,7 @@ async function refreshStock() {
   if(data?.ok!==true||!Array.isArray(data.items)||data.items.length>1000)throw Error('Invalid feed');
   const seen=new Set();for(const v of data.items){if(!products.some(p=>p.name===v.product)||!sizes.includes(v.size)||typeof v.color!=='string'||!(v.quantity===null||Number.isSafeInteger(v.quantity)&&v.quantity>=0)||!(v.price===null||Number.isFinite(v.price)&&v.price>=0)||![true,false,null].includes(v.preorder))throw Error('Invalid variant');const key=[v.product,v.color,v.size].join('|');if(seen.has(key))throw Error('Duplicate variant');seen.add(key);}
   inventory=data.items;receivedAt=Date.now();feedState='ready';
- } catch {inventory=[];receivedAt=0;feedState='error';}
+ } catch {feedState='error';}
  finally {clearTimeout(timer);script?.remove();pendingStock=null;render();}
 }
 function details() {const p=current(),price=unitPrice();return [['Изделие',p.name],['Цвет',p.colors[state.color][0]],['Размер',state.size],...(p.id==='dress'?[['Комплектация',state.bundle==='both'?'Платье + белые и чёрные шорты (2 пары)':'Платье + '+(state.bundle==='white'?'белые':'чёрные')+' шорты (1 пара)'],['Размер шорт',state.shortsSize]]:[]),['Формат',state.mode==='stock'?'Из наличия':state.mode==='preorder'?'Предзаказ':'Уточнить наличие'],['Количество',state.quantity+' шт.'],['Стоимость',price!==null?money(price*state.quantity):'Уточняется']];}

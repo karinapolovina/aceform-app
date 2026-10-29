@@ -29,8 +29,9 @@
  }
  async function poll(){
   clearTimeout(pollTimer);if(!active)return;attempts++;
-  try{const data=await request('paymentStatus',active);const paid=renderStatus(data);if(!paid&&attempts<40&&$('#paymentReturnDialog').open)pollTimer=setTimeout(poll,3000);}
-  catch{ window.ACEFORM_DELIVERY?.reset();$('#paymentReturnTitle').textContent='Не удалось проверить оплату';$('#paymentReturnText').textContent='Статус временно недоступен. Если деньги списались, не оплачивайте повторно. Нажмите «Проверить ещё раз».';$('#paymentReturnRetry').hidden=false; }
+  const target={...active},stillActive=()=>active?.orderId===target.orderId&&active?.token===target.token;
+  try{const data=await request('paymentStatus',target);if(!stillActive())return;const paid=renderStatus(data);if(!paid&&attempts<40&&$('#paymentReturnDialog').open)pollTimer=setTimeout(poll,3000);}
+  catch{if(!stillActive())return;window.ACEFORM_DELIVERY?.reset();$('#paymentReturnState').textContent='Статус не подтверждён';$('#paymentReturnState').dataset.kind='unknown';$('#paymentReturnAmount').textContent='';$('#paymentReturnTitle').textContent='Не удалось проверить оплату';$('#paymentReturnText').textContent='Статус временно недоступен. Если деньги списались, не оплачивайте повторно. Нажмите «Проверить ещё раз».';$('#paymentReturnRetry').hidden=false; }
  }
  function show(order){window.ACEFORM_DELIVERY?.reset();$('#paymentReturnState').textContent='Ожидаем подтверждение';$('#paymentReturnState').dataset.kind='unknown';$('#paymentReturnRetry').hidden=false;active={orderId:order.orderId,token:order.token};attempts=0;$('#paymentReturnTitle').textContent='Проверяем оплату';$('#paymentReturnText').textContent='Запрашиваем подтверждение ЮMoney…';$('#paymentReturnOrder').textContent=order.orderId;$('#paymentReturnAmount').textContent='';$('#paymentReturnDialog').showModal();poll();}
  window.ACEFORM_PAYMENT_BRIDGE={request,validOrder,async create(selection){const data=await request('createPayment',selection);if(!validOrder(data)||!/^[a-f0-9]{64}$/i.test(data.token||''))throw Error('invalid_order');return data;},show};
