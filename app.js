@@ -119,7 +119,7 @@ async function submitDirectPayment() {
  try {
   const order=await window.ACEFORM_PAYMENT_BRIDGE.create({nonce,color:state.color,size:state.size,shortsSize:state.shortsSize,bundle:state.bundle,quantity:state.quantity});
   if(order.amount!==amount||key!==[state.color,state.size,state.shortsSize,state.bundle,state.quantity].join('|'))throw Error('selection_changed');
-  try{sessionStorage.setItem('aceform.pendingPayment',JSON.stringify(order));}catch{}
+  try{sessionStorage.setItem('aceform.pendingPayment',JSON.stringify(order));localStorage.setItem('aceform.latestOrder',JSON.stringify(order));}catch{}
   if(order.state!=='pending'){$('#review').disabled=false;window.ACEFORM_PAYMENT_BRIDGE.show(order);return;}
   const fields=window.ACEFORM_PAYMENT.fields(order.orderId,order.amount);
   fields.successURL=window.location.origin+window.location.pathname+'#payment='+order.orderId+'.'+order.token;

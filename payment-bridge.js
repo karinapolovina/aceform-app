@@ -24,7 +24,7 @@
   $('#paymentReturnOrder').textContent=data.orderId;
   $('#paymentReturnRetry').hidden=paid;$('#paymentReturnState').dataset.kind=paid?'available':'unknown';$('#paymentReturnState').textContent=paid?'Подтверждено ЮMoney':data.state==='underpaid'?'Неполная сумма':'Ожидаем подтверждение';
   window.ACEFORM_DELIVERY?.render(data,active);
-  if(paid){clearTimeout(pollTimer);try{sessionStorage.setItem('aceform.pendingPayment',JSON.stringify({...data,token:active.token}));sessionStorage.removeItem('aceform.checkoutDraft');}catch{}$('#lastPayment').hidden=false;$('#lastPayment').textContent='Мой заказ';$('#lastPayment').onclick=()=>show(active);}
+  if(paid){clearTimeout(pollTimer);try{sessionStorage.setItem('aceform.pendingPayment',JSON.stringify({...data,token:active.token}));localStorage.setItem('aceform.latestOrder',JSON.stringify({...data,token:active.token}));sessionStorage.removeItem('aceform.checkoutDraft');}catch{}$('#lastPayment').hidden=false;$('#lastPayment').textContent='Мой заказ';$('#lastPayment').onclick=()=>show(active);}
   return paid;
  }
  async function poll(){
@@ -38,5 +38,5 @@
  $('#paymentReturnDialog').addEventListener('close',()=>clearTimeout(pollTimer));
  const match=window.location.hash.match(/^#payment=(ACEFORM-[a-f0-9]{32})\.([a-f0-9]{64})$/i);
  if(match)show({orderId:match[1],token:match[2]});
- else {try{const stored=JSON.parse(sessionStorage.getItem('aceform.pendingPayment')||'null');if(stored&&/^ACEFORM-[a-f0-9]{32}$/i.test(stored.orderId||'')&&/^[a-f0-9]{64}$/i.test(stored.token||'')){$('#lastPayment').hidden=false;$('#lastPayment').textContent=stored.state==='paid'?'Мой заказ':'Проверить последнюю оплату';$('#lastPayment').onclick=()=>show(stored);}}catch{}}
+ else {try{const stored=JSON.parse(sessionStorage.getItem('aceform.pendingPayment')||localStorage.getItem('aceform.latestOrder')||'null');if(stored&&/^ACEFORM-[a-f0-9]{32}$/i.test(stored.orderId||'')&&/^[a-f0-9]{64}$/i.test(stored.token||'')){$('#lastPayment').hidden=false;$('#lastPayment').textContent=stored.state==='paid'?'Мой заказ':'Проверить последнюю оплату';$('#lastPayment').onclick=()=>show(stored);}}catch{}}
 })();
