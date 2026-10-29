@@ -57,7 +57,7 @@ function render() {
  buttons($('#catalogFilters'),['Все','В наличии','Предзаказ'],['all','stock','preorder'].indexOf(state.filter),i=>{state.filter=['all','stock','preorder'][i];state.quantity=1;render()});
 
  if(preorderOnly())state.mode='preorder';
- if(p.id==='shorts')state.mode='stock';
+ if(p.id==='shorts'||(p.id==='dress'&&inStock()&&!bundleNeedsConfirmation()&&state.mode==='query'))state.mode='stock';
  if(state.mode==='stock'&&(!inStock()||bundleNeedsConfirmation()))state.mode='query';
  if(state.mode==='preorder'&&!preorderOnly()&&v?.preorder!==true)state.mode='query';
  if(state.mode==='stock')state.quantity=Math.min(state.quantity,orderLimit());
@@ -78,6 +78,7 @@ function render() {
  $('#stockBadge').textContent=a.label;$('#stockBadge').dataset.kind=a.kind;
  const opts=preorderOnly()?[['preorder','Предзаказ',false]]:p.id==='shorts'?[['stock','В наличии',false]]:[['stock','В наличии',!inStock()||bundleNeedsConfirmation()],['preorder','Предзаказ',v?.preorder!==true],['query','Уточнить',false]];
  $('#orderTypes').replaceChildren();opts.forEach(([mode,label,disabled])=>{const b=document.createElement('button');b.className='option'+(mode===state.mode?' selected':'');b.textContent=label;b.disabled=disabled;b.setAttribute('aria-pressed',mode===state.mode);b.onclick=()=>{state.mode=mode;render()};$('#orderTypes').append(b)});
+ const directCheckout=canPay();$('#orderTypes').hidden=directCheckout;const orderTitle=$('#orderTypes').previousElementSibling;if(orderTitle)orderTitle.hidden=directCheckout;$('#availabilityHint').hidden=directCheckout;
  $('#availabilityHint').textContent=bundleNeedsConfirmation()?(v?.quantity>0?'Платье в наличии. Комплект с разными размерами платья и шорт подтвердим при согласовании.':'Наличие выбранной комплектации и размера шорт подтвердим при согласовании.'):state.mode==='stock'?'В наличии. Резерв подтвердит менеджер.':state.mode==='preorder'?'Предзаказ разрешён. Срок изготовления согласуем с вами.':'Отправьте запрос — подтвердим наличие и возможность изготовления.';
  $('#stockStatus').textContent=feedState==='ready'?`Обновлено ${new Date(receivedAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}`:feedState==='loading'?'Проверяем остатки…':feedState==='unconfigured'?'Подключение остатков настраивается':'Не удалось обновить наличие';
  $('#stockRefresh').disabled=feedState==='loading'||feedState==='unconfigured';
