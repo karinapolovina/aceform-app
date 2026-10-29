@@ -18,7 +18,7 @@ function photo(p,ci,card=false) {
  const c=p.colors[ci];
  if(p.id==='shorts')return `<div class="shorts-pair" style="background-position:${ci===0?'left':'right'} center" role="img" aria-label="${p.name}, ${c[0]}"></div>`;
  if(!c[2])return `<div class="shorts-sketch"><svg viewBox="0 0 200 200" role="img" aria-label="Эскиз чёрных шорт"><path fill="#252827" stroke="#777" d="M53 46h94l12 117h-49l-10-62-10 62H41z"/><path fill="none" stroke="#777" d="M53 58h94M100 59v42"/></svg><small>Эскиз · фото скоро</small></div>`;
- const css=c[2].includes('-catalog.')?'catalog-photo':p.id==='dress'&&ci===0?'black-photo':p.id==='top'?'top-photo':p.id==='skirt'?'skirt-photo':p.id==='shorts'?'shorts-photo':'';
+ const css=/-catalog(?:-v\d+)?\./.test(c[2])?'catalog-photo':p.id==='dress'&&ci===0?'black-photo':p.id==='top'?'top-photo':p.id==='skirt'?'skirt-photo':p.id==='shorts'?'shorts-photo':'';
  return `<img class="garment-photo ${css}" src="${c[2]}" alt="${p.name}, ${c[0]}" ${card?'loading="lazy"':''}>`;
 }
 function buttons(el,values,selected,fn,swatches=false) {
