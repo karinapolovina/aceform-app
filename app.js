@@ -67,7 +67,7 @@ function render() {
  $('#products').replaceChildren();products.forEach((p,i)=>{if(!visible.includes(p))return;const b=document.createElement('button');b.type='button';b.className='product'+(i===state.product?' selected':'');b.setAttribute('aria-pressed',i===state.product);b.innerHTML=`<div class="thumb">${photo(p,state.filter==='stock'?p.colors.findIndex(c=>c[0]===stockRows(p)[0].color):0,true)}<span class="check">✓</span></div><b>${p.name}</b><em>${p.subtitle}</em><span class="card-price">${p.id==='dress'?'от '+money(8000):preorderOnly(p)?'Предзаказ':'В наличии'}</span>`;b.onclick=()=>{selectProduct(i);render()};const wrap=document.createElement('div');wrap.className='product-card';const help=document.createElement('button');help.type='button';help.className='size-link card-size';help.textContent='Подобрать размер ↗';help.setAttribute('aria-label','Подобрать размер: '+p.name);help.onclick=()=>{selectProduct(i);render();openSizeGuide()};wrap.append(b,help);$('#products').append(wrap)});
  const copy=window.ACEFORM_DESCRIPTIONS[p.id];
  $('#productStoryTitle').textContent=copy.title;$('#productStoryText').textContent=copy.text;$('#productStoryNote').textContent=copy.note;
- $('#modelHistoryText').textContent=copy.history;$('#modelHistorySource').href=copy.source;$('#modelHistorySource').textContent=copy.sourceLabel+' ↗';
+ $('#modelHistoryText').textContent=copy.history;
  $('#productBenefits').replaceChildren();for(const benefit of copy.benefits){const item=document.createElement('li');item.textContent=benefit;$('#productBenefits').append(item)}
  const modelImages=window.ACEFORM_MODELS[p.id][state.color];$('#fitGallery').hidden=modelImages.length===0;
  $('#modelPhotos').replaceChildren();
