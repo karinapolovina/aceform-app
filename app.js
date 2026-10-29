@@ -70,8 +70,12 @@ function render() {
  $('#modelHistoryText').textContent=copy.history;
  $('#productBenefits').replaceChildren();for(const benefit of copy.benefits){const item=document.createElement('li');item.textContent=benefit;$('#productBenefits').append(item)}
  const modelImages=window.ACEFORM_MODELS[p.id][state.color];$('#fitGallery').hidden=modelImages.length===0;
+ const gallery=$('#modelPhotos'),galleryKey=p.id+':'+state.color,previousIndex=gallery.dataset.selection===galleryKey?Math.round((gallery.scrollLeft||0)/((gallery.clientWidth||1)+12)):0;gallery.dataset.selection=galleryKey;
  $('#modelPhotos').replaceChildren();
- for(const src of modelImages){const img=document.createElement('img');img.src=src;img.alt=p.name+', '+p.colors[state.color][0]+' — на фигуре';img.loading='lazy';$('#modelPhotos').append(img)}
+ for(const src of modelImages){const figure=document.createElement('figure'),img=document.createElement('img'),caption=document.createElement('figcaption');const view=window.ACEFORM_MODEL_VIEWS?.[src]||'На фигуре';img.src=src;img.alt=p.name+', '+p.colors[state.color][0]+' — '+view;img.loading='lazy';img.decoding='async';caption.textContent=view;figure.append(img,caption);$('#modelPhotos').append(figure)}
+ gallery.scrollLeft=((gallery.clientWidth||1)+12)*Math.min(previousIndex,modelImages.length-1);$('#galleryControls').hidden=modelImages.length<2;
+ const updateGallery=()=>{const i=Math.max(0,Math.min(modelImages.length-1,Math.round((gallery.scrollLeft||0)/((gallery.clientWidth||1)+12))));$('#galleryCount').textContent=(i+1)+' / '+modelImages.length;$('#galleryPrev').disabled=i<=0;$('#galleryNext').disabled=i>=modelImages.length-1;};
+ gallery.onscroll=updateGallery;$('#galleryPrev').onclick=()=>gallery.scrollBy({left:-(gallery.clientWidth+12),behavior:'smooth'});$('#galleryNext').onclick=()=>gallery.scrollBy({left:gallery.clientWidth+12,behavior:'smooth'});updateGallery();
  $('#dressBundle').hidden=p.id!=='dress';
  buttons($('#bundleOptions'),['Белые · 1 пара','Чёрные · 1 пара','Белые + чёрные · 2 пары'],['white','black','both'].indexOf(state.bundle),i=>{state.bundle=['white','black','both'][i];state.quantity=1;state.mode='query';render()});
  buttons($('#shortsSizes'),sizes,sizes.indexOf(state.shortsSize),i=>{state.shortsSize=sizes[i];state.shortsSizeCustomized=true;state.quantity=1;state.mode='query';render()});
