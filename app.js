@@ -41,7 +41,6 @@ function render() {
  $('#productStoryTitle').textContent=copy.title;$('#productStoryText').textContent=copy.text;$('#productStoryNote').textContent=copy.note;
  $('#productBenefits').replaceChildren();for(const benefit of copy.benefits){const item=document.createElement('li');item.textContent=benefit;$('#productBenefits').append(item)}
  $('#studioTitle').textContent=p.name;$('#preview').innerHTML=photo(p,state.color);$('#colorName').textContent=p.colors[state.color][0];
- $('#photoCaption').textContent=p.id==='shorts'?'Визуализация по фото ACEFORM · одинаковый крой':(p.colors[state.color][2]?.includes('-catalog.')?'Каталожная визуализация по фото ACEFORM':'Фото ACEFORM · выбранный цвет');
  buttons($('#colors'),p.colors,state.color,i=>{state.color=i;state.quantity=1;state.mode='query';render()},true);
  buttons($('#sizes'),sizes,sizes.indexOf(state.size),i=>{state.size=sizes[i];state.quantity=1;state.mode='query';render()});
  $('#stockBadge').textContent=a.label;$('#stockBadge').dataset.kind=a.kind;
