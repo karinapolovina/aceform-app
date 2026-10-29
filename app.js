@@ -5,6 +5,7 @@ const tg = window.Telegram?.WebApp;
 if (tg?.initData) {try {tg.ready();tg.expand();tg.setHeaderColor('#f7f7f0');tg.setBackgroundColor('#f7f7f0');}catch {}}
 let state = {product:0,color:0,size:'M',quantity:1,mode:'query',filter:'all',bundle:'white',shortsSize:'M',shortsSizeCustomized:false};
 const commerce=window.ACEFORM_COMMERCE;
+let checkoutSettings={includedShorts:'unknown'};
 let inventory = [], receivedAt = 0, feedState = 'loading', pendingStock = null, orderText = '';
 const money = n => new Intl.NumberFormat('ru-RU',{style:'currency',currency:'RUB',maximumFractionDigits:0}).format(n);
 function current() {return products[state.product];}
@@ -28,9 +29,10 @@ function stockFresh() {return feedState==='ready'&&Date.now()-receivedAt<=90000;
 // Keep the last confirmed catalog selection while refreshing. Checkout still requires fresh stock.
 function stockRows(p) {return commerce.stockRows(p,inventory,receivedAt>0);}
 function inStock() {return commerce.inStock(current(),variant(),stockFresh());}
-function orderLimit() {return state.mode==='stock'?commerce.orderLimit(current(),variant()):99;}
+function bundleLimit() {return commerce.bundleLimit(state.bundle,state.shortsSize,inventory,checkoutSettings.includedShorts,variant()?.quantity||0);}
+function orderLimit() {return state.mode==='stock'?(current().id==='dress'?bundleLimit():commerce.orderLimit(current(),variant())):99;}
 function visibleProducts() {return products.filter(p=>commerce.matchesFilter(p,state.filter,inventory,receivedAt>0));}
-function bundleNeedsConfirmation() {return current().id==='dress'&&state.shortsSize!==state.size;}
+function bundleNeedsConfirmation() {return current().id==='dress'&&(state.shortsSize!==state.size||bundleLimit()<1);}
 function unitPrice() {return commerce.unitPrice(current(),state.bundle,variant());}
 function selectProduct(i) {
  state.product=i;state.color=0;state.quantity=1;state.mode='query';
@@ -80,7 +82,7 @@ function render() {
  const opts=preorderOnly()?[['preorder','Предзаказ',false]]:p.id==='shorts'?[['stock','В наличии',false]]:[['stock','В наличии',!inStock()||bundleNeedsConfirmation()],['preorder','Предзаказ',v?.preorder!==true],['query','Уточнить',false]];
  $('#orderTypes').replaceChildren();opts.forEach(([mode,label,disabled])=>{const b=document.createElement('button');b.className='option'+(mode===state.mode?' selected':'');b.textContent=label;b.disabled=disabled;b.setAttribute('aria-pressed',mode===state.mode);b.onclick=()=>{state.mode=mode;render()};$('#orderTypes').append(b)});
  const directCheckout=canPay();$('#orderTypes').hidden=directCheckout;const orderTitle=$('#orderTypes').previousElementSibling;if(orderTitle)orderTitle.hidden=directCheckout;$('#availabilityHint').hidden=directCheckout;
- $('#availabilityHint').textContent=bundleNeedsConfirmation()?(v?.quantity>0?'Платье в наличии. Комплект с разными размерами платья и шорт подтвердим при согласовании.':'Наличие выбранной комплектации и размера шорт подтвердим при согласовании.'):state.mode==='stock'?'В наличии. Резерв подтвердит менеджер.':state.mode==='preorder'?'Предзаказ разрешён. Срок изготовления согласуем с вами.':'Отправьте запрос — подтвердим наличие и возможность изготовления.';
+ $('#availabilityHint').textContent=bundleNeedsConfirmation()?(v?.quantity>0?'Платье в наличии. Выбранные шорты и комплектацию подтвердим при согласовании.':'Наличие выбранной комплектации и размера шорт подтвердим при согласовании.'):state.mode==='stock'?'В наличии. Резерв подтвердит менеджер.':state.mode==='preorder'?'Предзаказ разрешён. Срок изготовления согласуем с вами.':'Отправьте запрос — подтвердим наличие и возможность изготовления.';
  $('#stockStatus').textContent=feedState==='ready'?`Обновлено ${new Date(receivedAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}`:feedState==='loading'?'Проверяем остатки…':feedState==='unconfigured'?'Подключение остатков настраивается':'Не удалось обновить наличие';
  $('#stockRefresh').disabled=feedState==='loading'||feedState==='unconfigured';
  $('#qty').value=state.quantity;$('#minus').disabled=state.quantity<=1;$('#plus').disabled=state.quantity>=orderLimit();
@@ -103,6 +105,7 @@ async function refreshStock() {
   const data=await new Promise((resolve,reject)=>{pendingStock=resolve;timer=setTimeout(()=>reject(Error('timeout')),15000);script=document.createElement('script');script.src=url+'?v='+Date.now();script.onerror=()=>reject(Error('network'));document.head.append(script)});
   if(data?.ok!==true||!Array.isArray(data.items)||data.items.length>1000)throw Error('Invalid feed');
   const seen=new Set();for(const v of data.items){if(!products.some(p=>p.name===v.product)||!sizes.includes(v.size)||typeof v.color!=='string'||!(v.quantity===null||Number.isSafeInteger(v.quantity)&&v.quantity>=0)||!(v.price===null||Number.isFinite(v.price)&&v.price>=0)||![true,false,null].includes(v.preorder))throw Error('Invalid variant');const key=[v.product,v.color,v.size].join('|');if(seen.has(key))throw Error('Duplicate variant');seen.add(key);}
+  checkoutSettings={includedShorts:['white','black','either'].includes(data.checkout?.includedShorts)?data.checkout.includedShorts:'unknown'};
   inventory=data.items;receivedAt=Date.now();feedState='ready';
  } catch {feedState='error';}
  finally {clearTimeout(timer);script?.remove();pendingStock=null;render();}
@@ -110,7 +113,7 @@ async function refreshStock() {
 function details() {const p=current(),price=unitPrice();return [['Изделие',p.name],['Цвет',p.colors[state.color][0]],['Размер',state.size],...(p.id==='dress'?[['Комплектация',state.bundle==='both'?'Платье + белые и чёрные шорты (2 пары)':'Платье + '+(state.bundle==='white'?'белые':'чёрные')+' шорты (1 пара)'],['Размер шорт',state.shortsSize]]:[]),['Формат',state.mode==='stock'?'Из наличия':state.mode==='preorder'?'Предзаказ':'Уточнить наличие'],['Количество',state.quantity+' шт.'],['Стоимость',price!==null?money(price*state.quantity):'Уточняется']];}
 $('#minus').onclick=()=>{state.quantity=Math.max(1,state.quantity-1);render()};$('#plus').onclick=()=>{const max=orderLimit();state.quantity=Math.min(max,state.quantity+1);render()};
 document.querySelectorAll('.close').forEach(b=>b.onclick=()=>b.closest('dialog').close());$('#sizesHelp').onclick=openSizeGuide;$('#stockRefresh').onclick=refreshStock;
-function canPay() {return current().id==='dress'&&inStock()&&!bundleNeedsConfirmation()&&state.mode!=='preorder'&&Number.isSafeInteger(state.quantity)&&state.quantity>0&&state.quantity<=variant().quantity;}
+function canPay() {return current().id==='dress'&&inStock()&&!bundleNeedsConfirmation()&&state.mode!=='preorder'&&Number.isSafeInteger(state.quantity)&&state.quantity>0&&state.quantity<=bundleLimit();}
 async function submitDirectPayment() {
  if(!canPay())return;
  const key=[state.color,state.size,state.shortsSize,state.bundle,state.quantity].join('|'),amount=unitPrice()*state.quantity;
@@ -126,7 +129,7 @@ async function submitDirectPayment() {
   fields.successURL=window.location.origin+window.location.pathname+'#payment='+order.orderId+'.'+order.token;
   for(const [name,value] of Object.entries(fields))$('#walletCheckout').elements.namedItem(name).value=value;
   $('#walletCheckout').submit();
- } catch(error){$('#checkoutError').hidden=false;$('#checkoutError').textContent=error.message==='not_available'?'Выбранный комплект уже недоступен. Обновите наличие.':'Не удалось подготовить оплату. Деньги не списаны. Попробуйте ещё раз.';$('#review').disabled=false;}
+ } catch(error){$('#checkoutError').hidden=false;$('#checkoutError').textContent=error.message==='not_available'?'Выбранный комплект уже недоступен. Обновите наличие.':['extra_shorts_unconfirmed','bundle_needs_confirmation'].includes(error.message)?'Наличие выбранных шорт нужно подтвердить. Оставьте заявку на комплект.':'Не удалось подготовить оплату. Деньги не списаны. Попробуйте ещё раз.';$('#review').disabled=false;}
 }
 $('#review').onclick=()=>{render();if(canPay())return submitDirectPayment();$('#summary').replaceChildren();for(const [k,v] of details()){const row=document.createElement('div');row.className='order-line';for(const value of [k,v]){const s=document.createElement('span');s.textContent=value;row.append(s)}$('#summary').append(row)}$('#orderForm').classList.remove('hidden');$('#result').classList.add('hidden');$('#orderDialog').showModal()};
 $('#orderForm').onsubmit=e=>{e.preventDefault();render();const f=new FormData(e.target);if(!f.get('customer').trim()||!f.get('contact').trim())return;orderText='ЗАЯВКА ACEFORM\n\n'+details().map(([k,v])=>k+': '+v).join('\n')+'\n\nИмя: '+f.get('customer').trim()+'\nКонтакт: '+f.get('contact').trim()+(f.get('comment').trim()?'\nПожелания: '+f.get('comment').trim():'')+'\n\nНе является резервом. Наличие, цена и срок требуют подтверждения.';$('#orderText').textContent=orderText;$('#orderForm').classList.add('hidden');$('#result').classList.remove('hidden');$('#status').textContent=''};

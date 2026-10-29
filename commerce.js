@@ -1,4 +1,11 @@
 window.ACEFORM_COMMERCE = {
+ bundleLimit(bundle,size,inventory,included,dressQuantity) {
+  if(!['white','black','either'].includes(included))return 0;
+  if(bundle!=='both')return included==='either'||included===bundle?dressQuantity:0;
+  const colors=included==='white'?['Чёрный']:included==='black'?['Белый']:['Белый','Чёрный'];
+  const extra=inventory.filter(v=>v.product==='Шорты'&&v.size===size&&colors.includes(v.color)).reduce((n,v)=>n+(Number.isSafeInteger(v.quantity)?v.quantity:0),0);
+  return Math.min(dressQuantity,extra);
+ },
  preorderOnly(p) {return p.id==='top'||p.id==='skirt';},
  inStock(p,variant,fresh) {return p.id==='shorts'||(!this.preorderOnly(p)&&fresh&&variant?.quantity>0);},
  orderLimit(p,variant) {return p.id==='shorts'?99:variant?.quantity??99;},

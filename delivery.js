@@ -2,9 +2,10 @@
  const $=s=>document.querySelector(s),form=$('#deliveryForm');
  let order=null,auth=null,busy=false,submissionId=null;
  const methods={cdek:'СДЭК — пункт выдачи',avito:'Авито',courier:'Курьер',pickup:'Самовывоз'};
- function reset(){order=null;auth=null;$('#deliverySection').hidden=true;$('#paidOrderSummary').hidden=true;}
+ function reset(){$('#fulfillmentNote').hidden=true;order=null;auth=null;$('#deliverySection').hidden=true;$('#paidOrderSummary').hidden=true;}
  function render(data,credentials){
   if(data.state!=='paid'){reset();return;}
+  const unsettled=['review','processing'].includes(data.fulfillment);$('#fulfillmentNote').hidden=!unsettled;$('#fulfillmentNote').textContent=data.fulfillment==='review'?'Оплата получена. Перед отправкой проверим наличие и свяжемся с тобой. Данные доставки можно оставить сейчас.':unsettled?'Оплата получена. Завершаем оформление комплекта.':'';
   if(order?.orderId!==data.orderId){form.reset();form.hidden=true;submissionId=null;methodChanged();}
   order=data;auth={orderId:data.orderId,token:credentials.token};
   $('#deliverySection').hidden=false;$('#paidOrderSummary').hidden=false;
