@@ -16,7 +16,7 @@ function photo(p,ci,card=false) {
  const c=p.colors[ci];
  if(p.id==='shorts')return `<div class="shorts-pair" style="background-position:${ci===0?'left':'right'} center" role="img" aria-label="Шорты, ${c[0]}"></div>`;
  if(!c[2])return `<div class="shorts-sketch"><svg viewBox="0 0 200 200" role="img" aria-label="Эскиз чёрных шорт"><path fill="#252827" stroke="#777" d="M53 46h94l12 117h-49l-10-62-10 62H41z"/><path fill="none" stroke="#777" d="M53 58h94M100 59v42"/></svg><small>Эскиз · фото скоро</small></div>`;
- const css=p.id==='dress'&&ci===0?'black-photo':p.id==='top'?'top-photo':p.id==='skirt'?'skirt-photo':p.id==='shorts'?'shorts-photo':'';
+ const css=c[2].includes('-catalog.')?'catalog-photo':p.id==='dress'&&ci===0?'black-photo':p.id==='top'?'top-photo':p.id==='skirt'?'skirt-photo':p.id==='shorts'?'shorts-photo':'';
  return `<img class="garment-photo ${css}" src="${c[2]}" alt="${p.name}, ${c[0]}" ${card?'loading="lazy"':''}>`;
 }
 function buttons(el,values,selected,fn,swatches=false) {
@@ -35,7 +35,7 @@ function render() {
  if(state.mode==='stock')state.quantity=Math.min(state.quantity,v.quantity);
  $('#products').replaceChildren();products.forEach((p,i)=>{const b=document.createElement('button');b.type='button';b.className='product'+(i===state.product?' selected':'');b.setAttribute('aria-pressed',i===state.product);b.innerHTML=`<div class="thumb">${photo(p,0,true)}<span class="check">✓</span></div><b>${p.name}</b><em>${p.subtitle}</em>`;b.onclick=()=>{state.product=i;state.color=0;state.quantity=1;state.mode='query';render()};$('#products').append(b)});
  $('#studioTitle').textContent=p.name;$('#preview').innerHTML=photo(p,state.color);$('#colorName').textContent=p.colors[state.color][0];
- $('#photoCaption').textContent=p.id==='shorts'?'Визуализация по фото ACEFORM · одинаковый крой':'Фото ACEFORM · выбранный цвет';
+ $('#photoCaption').textContent=p.id==='shorts'?'Визуализация по фото ACEFORM · одинаковый крой':(p.colors[state.color][2]?.includes('-catalog.')?'Каталожная визуализация по фото ACEFORM':'Фото ACEFORM · выбранный цвет');
  buttons($('#colors'),p.colors,state.color,i=>{state.color=i;state.quantity=1;state.mode='query';render()},true);
  buttons($('#sizes'),sizes,sizes.indexOf(state.size),i=>{state.size=sizes[i];state.quantity=1;state.mode='query';render()});
  $('#stockBadge').textContent=a.label;$('#stockBadge').dataset.kind=a.kind;
