@@ -18,11 +18,11 @@ window.ACEFORM_COMMERCE = {
   // Owner-confirmed availability is boolean: no stock quantity is invented.
   if(p.id==='shorts')return p.colors.flatMap(c=>['S','M','L'].map(size=>({product:p.name,color:c[0],size,quantity:null,inStock:true})));
   if(!fresh||this.preorderOnly(p))return [];
-  return inventory.filter(v=>v.product===p.name&&p.colors.some(c=>c[0]===v.color)&&['S','M','L'].includes(v.size)&&v.quantity>0);
+  return inventory.filter(v=>v.product===(p.stockName||p.name)&&p.colors.some(c=>c[0]===v.color)&&['S','M','L'].includes(v.size)&&v.quantity>0);
  },
  matchesFilter(p,filter,inventory,fresh) {
   if(filter==='stock')return this.stockRows(p,inventory,fresh).length>0;
-  if(filter==='preorder')return this.preorderOnly(p)||(fresh&&inventory.some(v=>v.product===p.name&&p.colors.some(c=>c[0]===v.color)&&v.preorder===true));
+  if(filter==='preorder')return this.preorderOnly(p)||(fresh&&inventory.some(v=>v.product===(p.stockName||p.name)&&p.colors.some(c=>c[0]===v.color)&&v.preorder===true));
   return true;
  }
 };

@@ -9,8 +9,8 @@
   if(order?.orderId!==data.orderId){form.reset();form.hidden=true;submissionId=null;methodChanged();}
   order=data;auth={orderId:data.orderId,token:credentials.token};
   $('#deliverySection').hidden=false;$('#paidOrderSummary').hidden=false;
-  const shorts={white:'белые шорты',black:'чёрные шорты',both:'белые и чёрные шорты'}[data.bundle]||'шорты';
-  $('#paidOrderSummary').textContent=`Твой комплект: платье, ${data.color}, ${data.size}; ${shorts}, ${data.shortsSize}. Количество: ${data.quantity}.`;
+  const shorts={white:'белые шорты MARBLE',black:'чёрные шорты MARBLE',both:'белые и чёрные шорты MARBLE'}[data.bundle]||'шорты';
+  $('#paidOrderSummary').textContent=`Твой комплект: платье EVERT, ${data.color}, ${data.size}; ${shorts}, ${data.shortsSize}. Количество: ${data.quantity}.`;
   const saved=!!data.delivery;$('#deliveryStart').hidden=saved||!form.hidden;$('#deliveryReceived').hidden=!saved;
   if(saved){
    form.hidden=true;$('#deliveryError').hidden=true;
