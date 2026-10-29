@@ -88,7 +88,7 @@ function render() {
   Array.from($('#sizes').children).forEach((b,i)=>{b.disabled=!stockRows(p).some(v=>v.color===p.colors[state.color][0]&&v.size===sizes[i]);});
  }
 
- $('#review').firstChild.textContent=state.mode==='stock'?'Подготовить заказ ':state.mode==='preorder'?'Подготовить предзаказ ':'Уточнить наличие ';
+ $('#review').firstChild.textContent=preorderOnly()||state.mode==='preorder'||a.kind==='preorder'?'Оформить предзаказ ':inStock()?'Собрать комплект ':'Оставить заявку ';
 }
 window.ACEFORM_receiveStock = payload => {if(pendingStock)pendingStock(payload);};
 async function refreshStock() {
