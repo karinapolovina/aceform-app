@@ -1,11 +1,15 @@
 window.ACEFORM_COMMERCE = {
  preorderOnly(p) {return p.id==='top'||p.id==='skirt';},
+ inStock(p,variant,fresh) {return p.id==='shorts'||(!this.preorderOnly(p)&&fresh&&variant?.quantity>0);},
+ orderLimit(p,variant) {return p.id==='shorts'?99:variant?.quantity??99;},
  unitPrice(p,bundle,variant) {
   if(p.id==='dress')return bundle==='both'?9500:8000;
   if(this.preorderOnly(p))return null;
   return variant?.price??null;
  },
  stockRows(p,inventory,fresh) {
+  // Owner-confirmed availability is boolean: no stock quantity is invented.
+  if(p.id==='shorts')return p.colors.flatMap(c=>['S','M','L'].map(size=>({product:p.name,color:c[0],size,quantity:null,inStock:true})));
   if(!fresh||this.preorderOnly(p))return [];
   return inventory.filter(v=>v.product===p.name&&p.colors.some(c=>c[0]===v.color)&&['S','M','L'].includes(v.size)&&v.quantity>0);
  },
