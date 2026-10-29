@@ -3,7 +3,8 @@ const products = window.ACEFORM_CATALOG;
 const sizes = ['S','M','L'];
 const tg = window.Telegram?.WebApp;
 if (tg?.initData) {try {tg.ready();tg.expand();tg.setHeaderColor('#f7f7f0');tg.setBackgroundColor('#f7f7f0');}catch {}}
-let state = {product:0,color:0,size:'M',quantity:1,mode:'query'};
+let state = {product:0,color:0,size:'M',quantity:1,mode:'query',filter:'all',bundle:'white',shortsSize:'M',shortsSizeCustomized:false};
+const commerce=window.ACEFORM_COMMERCE;
 let inventory = [], receivedAt = 0, feedState = 'loading', pendingStock = null, orderText = '';
 const money = n => new Intl.NumberFormat('ru-RU',{style:'currency',currency:'RUB',maximumFractionDigits:0}).format(n);
 function current() {return products[state.product];}
@@ -22,35 +23,67 @@ function photo(p,ci,card=false) {
 function buttons(el,values,selected,fn,swatches=false) {
  el.replaceChildren();values.forEach((v,i)=>{const b=document.createElement('button');b.type='button';b.className=(swatches?'swatch':'option')+(i===selected?' selected':'');const label=Array.isArray(v)?v[0]:v;b.title=label;b.setAttribute('aria-label',label);b.setAttribute('aria-pressed',i===selected);if(swatches)b.style.setProperty('--color',v[1]);else b.textContent=label;b.onclick=()=>fn(i);el.append(b)});
 }
-function preorderOnly(p=current()) {return p.id==='top'||p.id==='skirt';}
+function preorderOnly(p=current()) {return commerce.preorderOnly(p);}
+function stockFresh() {return feedState==='ready'&&Date.now()-receivedAt<=90000;}
+function stockRows(p) {return commerce.stockRows(p,inventory,stockFresh());}
+function visibleProducts() {return products.filter(p=>commerce.matchesFilter(p,state.filter,inventory,stockFresh()));}
+function bundleNeedsConfirmation() {return current().id==='dress'&&(state.bundle==='both'||state.shortsSize!==state.size);}
+function unitPrice() {return commerce.unitPrice(current(),state.bundle,variant());}
+function selectProduct(i) {
+ state.product=i;state.color=0;state.quantity=1;state.mode='query';
+ if(state.filter==='stock'){
+  const v=stockRows(current())[0];
+  if(v){state.color=current().colors.findIndex(c=>c[0]===v.color);state.size=v.size;state.shortsSize=v.size;state.shortsSizeCustomized=false;}
+ }
+}
 function availability() {
  if(preorderOnly())return {label:'Предзаказ',kind:'preorder'};
  const v=variant();
  if(!v || v.quantity===null)return {label:'Наличие уточняется',kind:'unknown'};
+ if(v.quantity>0&&bundleNeedsConfirmation())return {label:'Платье в наличии · комплектация уточняется',kind:'unknown'};
  if(v.quantity>0)return {label:`В наличии · ${v.quantity} шт.`,kind:'available'};
  return {label:v.preorder===true?'Предзаказ':v.preorder===false?'Нет в наличии':'Предзаказ уточняется',kind:v.preorder===true?'preorder':'unknown'};
 }
 function render() {
- const p=current(),v=variant(),a=availability();
+ const visible=visibleProducts();
+ if(visible.length&&!visible.includes(current()))selectProduct(products.indexOf(visible[0]));
+ if(state.filter==='stock'&&visible.length&&!stockRows(current()).some(v=>v.color===current().colors[state.color][0]&&v.size===state.size))selectProduct(state.product);
+ const p=current(),v=variant(),a=availability(),hasSelection=visible.length>0;
+ $('#productDetails').hidden=!hasSelection;$('#review').disabled=!hasSelection;
+ $('#filterHint').textContent=state.filter==='stock'?(stockFresh()?(hasSelection?'Показаны изделия с подтверждённым остатком. Выберите цвет и размер.':'Сейчас нет изделий с подтверждённым остатком. Посмотрите предзаказ или все изделия.'):(feedState==='loading'?'Проверяем наличие…':'Наличие не подтверждено. Обновите остатки или выберите «Все».')):'';
+ buttons($('#catalogFilters'),['Все','В наличии','Предзаказ'],['all','stock','preorder'].indexOf(state.filter),i=>{state.filter=['all','stock','preorder'][i];state.quantity=1;render()});
+
  if(preorderOnly())state.mode='preorder';
- if(state.mode==='stock'&&!(v?.quantity>0))state.mode='query';
+ if(state.mode==='stock'&&(!(v?.quantity>0)||bundleNeedsConfirmation()))state.mode='query';
  if(state.mode==='preorder'&&!preorderOnly()&&v?.preorder!==true)state.mode='query';
  if(state.mode==='stock')state.quantity=Math.min(state.quantity,v.quantity);
- $('#products').replaceChildren();products.forEach((p,i)=>{const b=document.createElement('button');b.type='button';b.className='product'+(i===state.product?' selected':'');b.setAttribute('aria-pressed',i===state.product);b.innerHTML=`<div class="thumb">${photo(p,0,true)}<span class="check">✓</span></div><b>${p.name}</b><em>${p.subtitle}</em>`;b.onclick=()=>{state.product=i;state.color=0;state.quantity=1;state.mode='query';render()};const wrap=document.createElement('div');wrap.className='product-card';const help=document.createElement('button');help.type='button';help.className='size-link card-size';help.textContent='Подобрать размер ↗';help.setAttribute('aria-label','Подобрать размер: '+p.name);help.onclick=()=>{state.product=i;state.color=0;state.quantity=1;state.mode='query';render();openSizeGuide()};wrap.append(b,help);$('#products').append(wrap)});
+ $('#products').replaceChildren();products.forEach((p,i)=>{if(!visible.includes(p))return;const b=document.createElement('button');b.type='button';b.className='product'+(i===state.product?' selected':'');b.setAttribute('aria-pressed',i===state.product);b.innerHTML=`<div class="thumb">${photo(p,state.filter==='stock'?p.colors.findIndex(c=>c[0]===stockRows(p)[0].color):0,true)}<span class="check">✓</span></div><b>${p.name}</b><em>${p.subtitle}</em><span class="card-price">${p.id==='dress'?'от '+money(8000):'Стоимость уточняется'}</span>`;b.onclick=()=>{selectProduct(i);render()};const wrap=document.createElement('div');wrap.className='product-card';const help=document.createElement('button');help.type='button';help.className='size-link card-size';help.textContent='Подобрать размер ↗';help.setAttribute('aria-label','Подобрать размер: '+p.name);help.onclick=()=>{selectProduct(i);render();openSizeGuide()};wrap.append(b,help);$('#products').append(wrap)});
  const copy=window.ACEFORM_DESCRIPTIONS[p.id];
  $('#productStoryTitle').textContent=copy.title;$('#productStoryText').textContent=copy.text;$('#productStoryNote').textContent=copy.note;
  $('#productBenefits').replaceChildren();for(const benefit of copy.benefits){const item=document.createElement('li');item.textContent=benefit;$('#productBenefits').append(item)}
+ const modelImages=window.ACEFORM_MODELS[p.id][state.color];$('#fitGallery').hidden=modelImages.length===0;
+ $('#modelPhotos').replaceChildren();
+ for(const src of modelImages){const img=document.createElement('img');img.src=src;img.alt=p.name+', '+p.colors[state.color][0]+' — на фигуре';img.loading='lazy';$('#modelPhotos').append(img)}
+ $('#dressBundle').hidden=p.id!=='dress';
+ buttons($('#bundleOptions'),['Белые · 1 пара','Чёрные · 1 пара','Белые + чёрные · 2 пары'],['white','black','both'].indexOf(state.bundle),i=>{state.bundle=['white','black','both'][i];state.quantity=1;state.mode='query';render()});
+ buttons($('#shortsSizes'),sizes,sizes.indexOf(state.shortsSize),i=>{state.shortsSize=sizes[i];state.shortsSizeCustomized=true;state.quantity=1;state.mode='query';render()});
+ $('#bundlePriceNote').textContent=state.bundle==='both'?'Платье + белые и чёрные шорты — 9 500 ₽ за комплект. Наличие второй пары подтвердит менеджер.':'Платье + одна пара шорт — 8 000 ₽ за комплект.';
  $('#studioTitle').textContent=p.name;$('#preview').innerHTML=photo(p,state.color);$('#colorName').textContent=p.colors[state.color][0];
  buttons($('#colors'),p.colors,state.color,i=>{state.color=i;state.quantity=1;state.mode='query';render()},true);
- buttons($('#sizes'),sizes,sizes.indexOf(state.size),i=>{state.size=sizes[i];state.quantity=1;state.mode='query';render()});
+ buttons($('#sizes'),sizes,sizes.indexOf(state.size),i=>{state.size=sizes[i];if(!state.shortsSizeCustomized)state.shortsSize=state.size;state.quantity=1;state.mode='query';render()});
  $('#stockBadge').textContent=a.label;$('#stockBadge').dataset.kind=a.kind;
- const opts=preorderOnly()?[['preorder','Предзаказ',false]]:[['stock','В наличии',!(v?.quantity>0)],['preorder','Предзаказ',v?.preorder!==true],['query','Уточнить',false]];
+ const opts=preorderOnly()?[['preorder','Предзаказ',false]]:[['stock','В наличии',!(v?.quantity>0)||bundleNeedsConfirmation()],['preorder','Предзаказ',v?.preorder!==true],['query','Уточнить',false]];
  $('#orderTypes').replaceChildren();opts.forEach(([mode,label,disabled])=>{const b=document.createElement('button');b.className='option'+(mode===state.mode?' selected':'');b.textContent=label;b.disabled=disabled;b.setAttribute('aria-pressed',mode===state.mode);b.onclick=()=>{state.mode=mode;render()};$('#orderTypes').append(b)});
- $('#availabilityHint').textContent=state.mode==='stock'?'Количество доступно по последней проверке. Резерв подтвердит менеджер.':state.mode==='preorder'?'Предзаказ разрешён. Срок изготовления согласуем с вами.':'Отправьте запрос — подтвердим наличие и возможность изготовления.';
+ $('#availabilityHint').textContent=bundleNeedsConfirmation()?(v?.quantity>0?'Платье с одной парой есть в наличии. Вторую пару или другой размер шорт подтвердим при согласовании.':'Наличие выбранной комплектации и размера шорт подтвердим при согласовании.'):state.mode==='stock'?'Количество доступно по последней проверке. Резерв подтвердит менеджер.':state.mode==='preorder'?'Предзаказ разрешён. Срок изготовления согласуем с вами.':'Отправьте запрос — подтвердим наличие и возможность изготовления.';
  $('#stockStatus').textContent=feedState==='ready'?`Обновлено ${new Date(receivedAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}`:feedState==='loading'?'Проверяем остатки…':feedState==='unconfigured'?'Подключение остатков настраивается':'Не удалось обновить наличие';
  $('#stockRefresh').disabled=feedState==='loading'||feedState==='unconfigured';
  $('#qty').value=state.quantity;$('#minus').disabled=state.quantity<=1;$('#plus').disabled=state.quantity>=(state.mode==='stock'?v.quantity:99);
- $('#price').textContent=v?.price!==null&&v?.price!==undefined?money(v.price*state.quantity):'Стоимость уточняется';
+ $('#price').textContent=!hasSelection?'Выберите изделие':unitPrice()!==null?money(unitPrice()*state.quantity)+(p.id==='dress'?' за '+(state.quantity===1?'комплект':state.quantity+' компл.'):''):'Стоимость уточняется';
+ if(state.filter==='stock') {
+  Array.from($('#colors').children).forEach((b,i)=>{b.disabled=!stockRows(p).some(v=>v.color===p.colors[i][0]);});
+  Array.from($('#sizes').children).forEach((b,i)=>{b.disabled=!stockRows(p).some(v=>v.color===p.colors[state.color][0]&&v.size===sizes[i]);});
+ }
+
  $('#review').firstChild.textContent=state.mode==='stock'?'Подготовить заказ ':state.mode==='preorder'?'Подготовить предзаказ ':'Уточнить наличие ';
 }
 window.ACEFORM_receiveStock = payload => {if(pendingStock)pendingStock(payload);};
@@ -68,7 +101,7 @@ async function refreshStock() {
  } catch {inventory=[];receivedAt=0;feedState='error';}
  finally {clearTimeout(timer);script?.remove();pendingStock=null;render();}
 }
-function details() {const p=current(),v=variant();return [['Изделие',p.name],['Цвет',p.colors[state.color][0]],['Размер',state.size],['Формат',state.mode==='stock'?'Из наличия':state.mode==='preorder'?'Предзаказ':'Уточнить наличие'],['Количество',state.quantity+' шт.'],['Стоимость',v?.price!=null?money(v.price*state.quantity):'Уточняется']];}
+function details() {const p=current(),price=unitPrice();return [['Изделие',p.name],['Цвет',p.colors[state.color][0]],['Размер',state.size],...(p.id==='dress'?[['Комплектация',state.bundle==='both'?'Платье + белые и чёрные шорты (2 пары)':'Платье + '+(state.bundle==='white'?'белые':'чёрные')+' шорты (1 пара)'],['Размер шорт',state.shortsSize]]:[]),['Формат',state.mode==='stock'?'Из наличия':state.mode==='preorder'?'Предзаказ':'Уточнить наличие'],['Количество',state.quantity+' шт.'],['Стоимость',price!==null?money(price*state.quantity):'Уточняется']];}
 $('#minus').onclick=()=>{state.quantity=Math.max(1,state.quantity-1);render()};$('#plus').onclick=()=>{const max=state.mode==='stock'?(variant()?.quantity||1):99;state.quantity=Math.min(max,state.quantity+1);render()};
 document.querySelectorAll('.close').forEach(b=>b.onclick=()=>b.closest('dialog').close());$('#sizesHelp').onclick=openSizeGuide;$('#stockRefresh').onclick=refreshStock;
 $('#review').onclick=()=>{render();$('#summary').replaceChildren();for(const [k,v] of details()){const row=document.createElement('div');row.className='order-line';for(const value of [k,v]){const s=document.createElement('span');s.textContent=value;row.append(s)}$('#summary').append(row)}$('#orderForm').classList.remove('hidden');$('#result').classList.add('hidden');$('#orderDialog').showModal()};
@@ -94,5 +127,5 @@ $('#sizeForm').onsubmit=e=>{
  $('#sizeResult').textContent=r.kind==='match'?'По вашей таблице подходит размер '+r.size+'.':messages[r.kind];
  if(r.kind==='match'){recommendedSize=r.size;$('#applySize').hidden=false;$('#applySize').textContent='Выбрать '+r.size;}
 };
-$('#applySize').onclick=()=>{if(recommendedSize){state.size=recommendedSize;state.quantity=1;render();$('#sizeDialog').close();}};
+$('#applySize').onclick=()=>{if(recommendedSize){state.size=recommendedSize;if(state.filter==='stock'&&!stockRows(current()).some(v=>v.color===current().colors[state.color][0]&&v.size===state.size))state.filter='all';if(!state.shortsSizeCustomized)state.shortsSize=state.size;state.quantity=1;render();$('#sizeDialog').close();}};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshStock()});setInterval(()=>{if(!document.hidden)refreshStock()},60000);render();refreshStock();
