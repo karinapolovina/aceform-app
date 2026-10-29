@@ -5,7 +5,7 @@ const tg = window.Telegram?.WebApp;
 if (tg?.initData) {try {tg.ready();tg.expand();tg.setHeaderColor('#f7f7f0');tg.setBackgroundColor('#f7f7f0');}catch {}}
 let state = {product:0,color:0,size:'M',quantity:1,mode:'query',filter:'all',bundle:'white',shortsSize:'M',shortsSizeCustomized:false};
 const commerce=window.ACEFORM_COMMERCE;
-let inventory = [], receivedAt = 0, feedState = 'loading', pendingStock = null, orderText = '', paymentOrder = null, orderSaved = false;
+let inventory = [], receivedAt = 0, feedState = 'loading', pendingStock = null, orderText = '';
 const money = n => new Intl.NumberFormat('ru-RU',{style:'currency',currency:'RUB',maximumFractionDigits:0}).format(n);
 function current() {return products[state.product];}
 function variant() {
@@ -88,7 +88,7 @@ function render() {
   Array.from($('#sizes').children).forEach((b,i)=>{b.disabled=!stockRows(p).some(v=>v.color===p.colors[state.color][0]&&v.size===sizes[i]);});
  }
 
- $('#review').firstChild.textContent=preorderOnly()||state.mode==='preorder'||a.kind==='preorder'?'Оформить предзаказ ':inStock()?'Собрать комплект ':'Оставить заявку ';
+ $('#review').firstChild.textContent=canPay()?'Оплатить '+money(unitPrice()*state.quantity)+' ':preorderOnly()||state.mode==='preorder'||a.kind==='preorder'?'Оформить предзаказ ':inStock()?'Собрать комплект ':'Оставить заявку ';
 }
 window.ACEFORM_receiveStock = payload => {if(pendingStock)pendingStock(payload);};
 async function refreshStock() {
@@ -108,20 +108,24 @@ async function refreshStock() {
 function details() {const p=current(),price=unitPrice();return [['Изделие',p.name],['Цвет',p.colors[state.color][0]],['Размер',state.size],...(p.id==='dress'?[['Комплектация',state.bundle==='both'?'Платье + белые и чёрные шорты (2 пары)':'Платье + '+(state.bundle==='white'?'белые':'чёрные')+' шорты (1 пара)'],['Размер шорт',state.shortsSize]]:[]),['Формат',state.mode==='stock'?'Из наличия':state.mode==='preorder'?'Предзаказ':'Уточнить наличие'],['Количество',state.quantity+' шт.'],['Стоимость',price!==null?money(price*state.quantity):'Уточняется']];}
 $('#minus').onclick=()=>{state.quantity=Math.max(1,state.quantity-1);render()};$('#plus').onclick=()=>{const max=orderLimit();state.quantity=Math.min(max,state.quantity+1);render()};
 document.querySelectorAll('.close').forEach(b=>b.onclick=()=>b.closest('dialog').close());$('#sizesHelp').onclick=openSizeGuide;$('#stockRefresh').onclick=refreshStock;
-function paymentKey() {return [current().id,state.color,state.size,state.bundle,state.shortsSize,state.quantity].join('|');}
 function canPay() {return current().id==='dress'&&inStock()&&!bundleNeedsConfirmation()&&state.mode!=='preorder'&&Number.isSafeInteger(state.quantity)&&state.quantity>0&&state.quantity<=variant().quantity;}
-function updatePayment() {
- const eligible=!!paymentOrder&&canPay()&&paymentOrder.key===paymentKey()&&paymentOrder.amount===unitPrice()*state.quantity;
- $('#paymentSection').hidden=!paymentOrder;
- $('#paymentButton').disabled=!eligible||!orderSaved;
- if(paymentOrder){$('#paymentAmount').value=paymentOrder.amount.toFixed(2);$('#paymentLabel').value=paymentOrder.id;$('#paymentButton').firstChild.textContent='Оплатить '+money(paymentOrder.amount)+' ';}
+function prepareDirectPayment() {
+ if(!canPay())throw Error('Payment unavailable');
+ const unique=(window.crypto?.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2)).replaceAll('-','').slice(0,16);
+ const id=['ACEFORM',['BLACK','WHITE','RED'][state.color],state.size,state.bundle.toUpperCase(),state.shortsSize,'Q'+state.quantity,unique].join('-');
+ return {fields:window.ACEFORM_PAYMENT.fields(id,unitPrice()*state.quantity),items:details(),createdAt:Date.now()};
 }
-$('#review').onclick=()=>{render();if(inStock()&&!bundleNeedsConfirmation()&&state.mode==='query'){state.mode='stock';render()}paymentOrder=null;orderSaved=false;$('#paymentSection').hidden=true;$('#paymentStatus').textContent='';$('#summary').replaceChildren();for(const [k,v] of details()){const row=document.createElement('div');row.className='order-line';for(const value of [k,v]){const s=document.createElement('span');s.textContent=value;row.append(s)}$('#summary').append(row)}$('#orderForm').classList.remove('hidden');$('#result').classList.add('hidden');$('#orderDialog').showModal()};
-$('#orderForm').onsubmit=e=>{e.preventDefault();render();const f=new FormData(e.target);if(!f.get('customer').trim()||!f.get('contact').trim())return;const id='ACEFORM-'+(window.crypto?.randomUUID?.()||Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,12));paymentOrder=canPay()?{id,amount:unitPrice()*state.quantity,key:paymentKey()}:null;orderSaved=false;orderText='ЗАЯВКА ACEFORM № '+id+'\n\n'+details().map(([k,v])=>k+': '+v).join('\n')+'\nДоставка: согласуется и оплачивается отдельно.\n\nИмя: '+f.get('customer').trim()+'\nКонтакт: '+f.get('contact').trim()+(f.get('comment').trim()?'\nПожелания: '+f.get('comment').trim():'')+'\n\nЗаявка не отправлена автоматически. Оплату и отправку подтверждает менеджер.';$('#orderText').textContent=orderText;$('#orderForm').classList.add('hidden');$('#result').classList.remove('hidden');$('#status').textContent='';$('#paymentStatus').textContent='';$('#paymentHint').textContent='Сначала сохраните заявку кнопкой «Скопировать заявку» или «Скачать .txt», чтобы передать её ACEFORM.';updatePayment()};
-$('#copy').onclick=async()=>{try{await navigator.clipboard.writeText(orderText);orderSaved=true;updatePayment();$('#status').textContent='Скопировано. Отправьте заявку менеджеру ACEFORM.';$('#paymentHint').textContent='Заявка скопирована. После оплаты отправьте её менеджеру ACEFORM.'}catch{$('#status').textContent='Не удалось скопировать. Скачайте заявку или выделите текст вручную.'}};
-$('#download').onclick=()=>{const url=URL.createObjectURL(new Blob([orderText],{type:'text/plain;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='ACEFORM-order.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);orderSaved=true;updatePayment();$('#paymentHint').textContent='Заявка сохранена в файл. После оплаты отправьте её менеджеру ACEFORM.'};
-$('#paymentForm').onsubmit=async e=>{e.preventDefault();if(!paymentOrder||!orderSaved)return;$('#paymentButton').disabled=true;$('#paymentStatus').textContent='Проверяем наличие перед оплатой…';await refreshStock();updatePayment();if($('#paymentButton').disabled){$('#paymentStatus').textContent='Наличие изменилось или не подтверждено. Вернитесь к выбору и создайте новую заявку.';return;}const fields=window.ACEFORM_PAYMENT.fields(paymentOrder.id,paymentOrder.amount,$('#paymentMethod').value);for(const [name,value] of Object.entries(fields)){$('#paymentForm').elements.namedItem(name).value=value;}$('#paymentStatus').textContent='Оплата открывается в ЮMoney. Поступление денег подтвердит менеджер ACEFORM.';$('#paymentForm').submit()};
-$('#edit').onclick=()=>{paymentOrder=null;orderSaved=false;$('#paymentSection').hidden=true;$('#orderForm').classList.remove('hidden');$('#result').classList.add('hidden')};
+function submitDirectPayment() {
+ const payment=prepareDirectPayment();
+ // Keep the selection on this device when the buyer goes to YooMoney. This is not a paid status.
+ try {sessionStorage.setItem('aceform.pendingPayment',JSON.stringify(payment));}catch{}
+ for(const [name,value] of Object.entries(payment.fields))$('#walletCheckout').elements.namedItem(name).value=value;
+ $('#walletCheckout').submit();
+}
+$('#review').onclick=()=>{render();if(canPay()){submitDirectPayment();return;}$('#summary').replaceChildren();for(const [k,v] of details()){const row=document.createElement('div');row.className='order-line';for(const value of [k,v]){const s=document.createElement('span');s.textContent=value;row.append(s)}$('#summary').append(row)}$('#orderForm').classList.remove('hidden');$('#result').classList.add('hidden');$('#orderDialog').showModal()};
+$('#orderForm').onsubmit=e=>{e.preventDefault();render();const f=new FormData(e.target);if(!f.get('customer').trim()||!f.get('contact').trim())return;orderText='ЗАЯВКА ACEFORM\n\n'+details().map(([k,v])=>k+': '+v).join('\n')+'\n\nИмя: '+f.get('customer').trim()+'\nКонтакт: '+f.get('contact').trim()+(f.get('comment').trim()?'\nПожелания: '+f.get('comment').trim():'')+'\n\nНе является резервом. Наличие, цена и срок требуют подтверждения.';$('#orderText').textContent=orderText;$('#orderForm').classList.add('hidden');$('#result').classList.remove('hidden');$('#status').textContent=''};
+$('#copy').onclick=async()=>{try{await navigator.clipboard.writeText(orderText);$('#status').textContent='Скопировано. Отправьте заявку менеджеру ACEFORM.'}catch{$('#status').textContent='Не удалось скопировать. Скачайте заявку или выделите текст вручную.'}};
+$('#download').onclick=()=>{const url=URL.createObjectURL(new Blob([orderText],{type:'text/plain;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='ACEFORM-order.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};$('#edit').onclick=()=>{$('#orderForm').classList.remove('hidden');$('#result').classList.add('hidden')};
 function openSizeGuide() {
  const p=current(), fields=window.ACEFORM_SIZING.fields(p.id);
  $('#sizeTitle').textContent='Размер: '+p.name;
