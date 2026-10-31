@@ -1,0 +1,20 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+const nodes={};const ctx={window:{},document:{querySelector:id=>nodes[id]||(nodes[id]={})},location:{hash:'#create/3'},console};vm.createContext(ctx);
+for(const file of ['catalog.js','tree/rack.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx);
+vm.runInContext(fs.readFileSync('tree/app.js','utf8').replace("document.querySelector('#mine').onclick=()=>go('#mine');window.addEventListener('hashchange',route);boot();",''),ctx);
+const run=s=>vm.runInContext(s,ctx);
+(async()=>{
+ let attempts=0;ctx.retryTransport=async path=>{if(path==='/api/session')return{token:'test'};if(path==='/api/me/wish'){if(++attempts===1)throw Error('temporary failure');return{wish:null};}};
+ run('apiConfig={dev:true};window.ACEFORM_TREE_TRANSPORT={request:retryTransport};');
+ await assert.rejects(run('ensureLogin()'));assert.equal(run('apiSession'),null);await run('ensureLogin()');assert.equal(attempts,2);assert.equal(run('apiSession.token'),'test');
+ nodes['#dream']={value:'История, которую нельзя потерять'};nodes['#name']={value:'Аня'};for(const [id,checked] of [['#anonymous',true],['#channel',false],['#consent',true]])nodes[id]={checked};
+ run('currentStep=2;');await run('route()');assert.equal(run('draft.dream'),nodes['#dream'].value);assert.equal(run('draft.publicConsent'),true);
+ ctx.savedResult={id:'saved',revision:3,status:'pending',product:'white',items:[{product:'white',size:'M'}],dream:'A valid long enough dream',anonymous:true,name:'',channel:false,publicConsent:true};
+ let feedRequests=0;ctx.saveTransport=async(path,method)=>{if(path==='/api/me/wish'&&method==='POST')return{wish:ctx.savedResult};if(path==='/api/wishes')feedRequests++;throw Error('network unavailable');};
+ run('draft=prepareDraft(savedResult);apiSession={token:"test"};window.ACEFORM_TREE_TRANSPORT={request:saveTransport};step3();');await nodes['#save'].onclick();assert.equal(run('savedWish.id'),'saved');assert.equal(run('pendingSavedView.id'),'saved');assert.equal(ctx.location.hash,'#mine');assert.equal(feedRequests,0);assert(!nodes['#saveError']?.textContent);
+ ctx.measure={measureText:text=>({width:Array.from(text).length})};ctx.text='Уехать в теннисный кемп у моря. Утром — корт, вечером — никуда не торопиться.';
+ const lines=Array.from(run('wrapCardText(measure,text,22)'));assert.equal(lines.join(' '),ctx.text);assert(lines.every(line=>line.length<=22));
+ ctx.text='Оченьдлинноесловобезпробелов';assert(Array.from(run('wrapCardText(measure,text,8)')).every(line=>line.length<=8));
+ ctx.text='Первая строка\n\nВторая строка';assert.equal(Array.from(run('wrapCardText(measure,text,30)')).join('\n'),ctx.text);
+ console.log('Passed: login retry, history navigation capture, successful save despite feed outage, word wrapping and explicit line breaks.');
+})().catch(error=>{console.error(error);process.exitCode=1;});
