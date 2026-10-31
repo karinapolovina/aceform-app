@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
-const nodes={};const ctx={window:{},document:{querySelector:id=>nodes[id]||(nodes[id]={})},location:{hash:'#create/3'},console};vm.createContext(ctx);
+const nodes={};const ctx={window:{addEventListener(){}},document:{addEventListener(){},querySelector:id=>nodes[id]||(nodes[id]={})},location:{hash:'#create/3'},console};vm.createContext(ctx);
 for(const file of ['catalog.js','tree/rack.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx);
 vm.runInContext(fs.readFileSync('tree/app.js','utf8').replace("document.querySelector('#mine').onclick=()=>go('#mine');window.addEventListener('hashchange',route);boot();",''),ctx);
 const run=s=>vm.runInContext(s,ctx);
