@@ -2,3 +2,5 @@
 .section-head h2{min-width:0;flex:1}.section-head>.small{flex:0 0 100px;overflow-wrap:anywhere}@media(max-width:700px){.section-head{display:block}.section-head>.small{display:block;max-width:none;text-align:left;margin-top:10px}}
 header{gap:18px;flex-wrap:wrap}.brand{margin-right:auto}.moderation-list{display:grid;gap:20px;max-width:720px}.review{padding:25px;border:1px solid var(--line);background:#eeeade}.review h3{margin-bottom:12px}.review-dream{font:24px/1.4 Georgia;overflow-wrap:anywhere}.review textarea{display:block;min-height:75px;width:100%;padding:12px;background:var(--paper);border:1px solid var(--line);margin:10px 0 18px}.story .quote{overflow-wrap:anywhere}.wizard{scroll-margin-top:20px}@media(max-width:400px){header{gap:14px}.brand{width:100%}.demo{letter-spacing:.5px;font-size:9px}}
 .fields h2{overflow-wrap:anywhere}
+
+.model-tabs{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 24px}.model-tabs .size{padding:10px 14px}.product .caption strong{overflow-wrap:anywhere}
