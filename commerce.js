@@ -11,7 +11,6 @@ window.ACEFORM_COMMERCE = {
  orderLimit(p,variant) {return p.id==='shorts'?99:variant?.quantity??99;},
  unitPrice(p,bundle,variant) {
   if(p.id==='dress')return bundle==='both'?9500:8000;
-  if(this.preorderOnly(p))return null;
   return variant?.price??null;
  },
  stockRows(p,inventory,fresh) {

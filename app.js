@@ -1,3 +1,5 @@
+// Customer order links preserve the signed Telegram launch when opening the receipt.
+{const tg=window.Telegram?.WebApp,start=tg?.initDataUnsafe?.start_param||new URLSearchParams(location.search).get('tgWebAppStartParam')||'';if(/^order_[a-f0-9]{32}$/.test(start)){const target=new URL('my-order.html?order='+start.slice(6),location.href),fragment=new URLSearchParams();fragment.set('tgWebAppData',tg?.initData||'');fragment.set('tgWebAppVersion',tg?.version||'8.0');fragment.set('tgWebAppPlatform',tg?.platform||'unknown');target.hash=fragment.toString();location.replace(target.href);}}
 const $ = s => document.querySelector(s);
 const products = window.ACEFORM_CATALOG;
 const sizes = ['S','M','L'];
@@ -35,7 +37,7 @@ function orderLimit() {return state.mode==='stock'?(current().id==='dress'?bundl
 function visibleProducts() {return products.filter(p=>commerce.matchesFilter(p,state.filter,inventory,receivedAt>0));}
 function bundleNeedsConfirmation() {return current().id==='dress'&&(state.shortsSize!==state.size||bundleLimit()<1);}
 function unitPrice() {return commerce.unitPrice(current(),state.bundle,variant());}
-function totalPrice(){const subtotal=unitPrice()*state.quantity;return subtotal-(window.ACEFORM_CERTIFICATE?.discount(subtotal)||0);}
+function totalPrice(){const subtotal=unitPrice()*state.quantity;return subtotal-(canPay()?(window.ACEFORM_CERTIFICATE?.discount(subtotal)||0):0);}
 window.ACEFORM_CERTIFICATE_RENDER=()=>render();
 function selectProduct(i) {
  state.product=i;state.color=0;state.quantity=1;state.mode='query';
