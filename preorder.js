@@ -25,7 +25,7 @@
    if(result?.received!==true||!/^[a-f0-9]{32}$/.test(result.id||''))throw Error('Не удалось подтвердить получение заявки. Повтори отправку.');
    form.classList.add('hidden');document.querySelector('#result').classList.remove('hidden');
    document.querySelector('#preorderReference').textContent='№ '+result.id.slice(0,8).toUpperCase();
-   document.querySelector('#preorderSuccessText').textContent=result.duplicate?'Эта заявка уже получена. Повторно отправлять её не нужно.':'Заявка получена. Итог заказа придёт в @aceform_bot. Там можно проверить состав, подтвердить заказ и оплатить 50% предоплаты, когда указана цена.';
+   document.querySelector('#preorderSuccessText').textContent=result.duplicate?'Эта заявка уже получена. Повторно отправлять её не нужно.':'Заявка получена. Итог заказа придёт в @'+(result.botUsername==='aceform_tree_bot'?'aceform_tree_bot':'aceform_bot')+'. Там можно проверить состав, подтвердить заказ и оплатить 50% предоплаты, когда указана цена.';
    const orderLink=document.querySelector('#preorderOrderLink');orderLink.href='https://t.me/aceform_bot/shop?startapp=order_'+result.id;orderLink.hidden=false;
    if(data.certificate)document.querySelector('#preorderSuccessText').textContent+=' Сертификат проверим при согласовании заказа.';
   }catch(e){error.hidden=false;error.textContent=(e.message||'').replace('Проверь «Моё желание» перед повторной отправкой.','Повтори отправку — дубль заявки не создастся.')||'Не удалось отправить заявку. Проверь соединение и попробуй ещё раз. Данные формы сохранены.';}
