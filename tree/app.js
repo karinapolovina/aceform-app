@@ -1,10 +1,17 @@
 'use strict';
 // Certificate launch keeps the original signed Telegram fragment across navigation.
 const certificateLaunch=window.Telegram?.WebApp;
-const isCertificateLaunch=certificateLaunch?.initDataUnsafe?.start_param==='cert_club1000'||new URLSearchParams(location.search).get('tgWebAppStartParam')==='cert_club1000';
+const isCertificateLaunch=certificateLaunch?.initDataUnsafe?.start_param==='cert_club1000'||new URLSearchParams(location.search).get('tgWebAppStartParam')==='cert_club1000'||new URLSearchParams((location.hash||'').slice(1)).get('tgWebAppStartParam')==='cert_club1000';
 if(isCertificateLaunch){
- const target=new URL('../?certificate=club1000',location.href);
- const fragment=new URLSearchParams();fragment.set('tgWebAppData',certificateLaunch.initData);fragment.set('tgWebAppVersion',certificateLaunch.version||'8.0');fragment.set('tgWebAppPlatform',certificateLaunch.platform||'unknown');target.hash=fragment.toString();location.replace(target.href);
+ const target='https://t.me/aceform_bot/shop?startapp=cert_club1000';
+ document.title='Сертификат ACEFORM';
+ for(const el of document.querySelectorAll('.demo,header,footer'))el.style.display='none';
+ const landing=document.querySelector('#app');landing.style.maxWidth='540px';landing.style.padding='44px 24px';
+ landing.innerHTML='<div class="eyebrow">ACEFORM · СЕРТИФИКАТ</div><h1 style="font-size:48px">1 000 ₽<br>для твоей игры.</h1><p>Открываем магазин ACEFORM. Сертификат активируется автоматически.</p><a class="btn" id="certificateMainBot" href="'+target+'">Открыть магазин ACEFORM ↗</a><p class="small" style="margin-top:20px">Если магазин не открылся автоматически, нажми кнопку выше.</p>';
+ document.body.style.visibility='visible';
+ const openShop=()=>{if(certificateLaunch?.openTelegramLink){certificateLaunch.openTelegramLink(target);return true;}return false;};
+ landing.querySelector('#certificateMainBot').onclick=e=>{if(certificateLaunch?.openTelegramLink){e.preventDefault();openShop();}};
+ try{certificateLaunch?.ready();openShop();}catch(e){/* The permanent button remains available on older Telegram clients. */}
 }
 
 const app=document.querySelector('#app');
