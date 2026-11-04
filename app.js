@@ -35,6 +35,8 @@ function orderLimit() {return state.mode==='stock'?(current().id==='dress'?bundl
 function visibleProducts() {return products.filter(p=>commerce.matchesFilter(p,state.filter,inventory,receivedAt>0));}
 function bundleNeedsConfirmation() {return current().id==='dress'&&(state.shortsSize!==state.size||bundleLimit()<1);}
 function unitPrice() {return commerce.unitPrice(current(),state.bundle,variant());}
+function totalPrice(){const subtotal=unitPrice()*state.quantity;return subtotal-(window.ACEFORM_CERTIFICATE?.discount(subtotal)||0);}
+window.ACEFORM_CERTIFICATE_RENDER=()=>render();
 function selectProduct(i) {
  state.product=i;state.color=0;state.quantity=1;state.mode='query';
  if(state.filter==='stock'){
@@ -92,13 +94,13 @@ function render() {
  $('#stockStatus').textContent=feedState==='ready'?`Обновлено ${new Date(receivedAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}`:feedState==='loading'?'Проверяем остатки…':feedState==='unconfigured'?'Подключение остатков настраивается':'Не удалось обновить наличие';
  $('#stockRefresh').disabled=feedState==='loading'||feedState==='unconfigured';
  $('#qty').value=state.quantity;$('#minus').disabled=state.quantity<=1;$('#plus').disabled=state.quantity>=orderLimit();
- $('#price').textContent=!hasSelection?'Выберите изделие':unitPrice()!==null?money(unitPrice()*state.quantity)+(p.id==='dress'?' за '+(state.quantity===1?'комплект':state.quantity+' компл.'):''):'Стоимость уточняется';
+ $('#price').textContent=!hasSelection?'Выберите изделие':unitPrice()!==null?money(totalPrice())+(p.id==='dress'?' за '+(state.quantity===1?'комплект':state.quantity+' компл.'):''):'Стоимость уточняется';
  if(state.filter==='stock') {
   Array.from($('#colors').children).forEach((b,i)=>{b.disabled=!stockRows(p).some(v=>v.color===p.colors[i][0]);});
   Array.from($('#sizes').children).forEach((b,i)=>{b.disabled=!stockRows(p).some(v=>v.color===p.colors[state.color][0]&&v.size===sizes[i]);});
  }
 
- $('#review').firstChild.textContent=canPay()?'Оплатить '+money(unitPrice()*state.quantity)+' ':preorderOnly()||state.mode==='preorder'||a.kind==='preorder'?'Оформить предзаказ ':inStock()?'Собрать комплект ':'Оставить заявку ';
+ $('#review').firstChild.textContent=canPay()?'Оплатить '+money(totalPrice())+' ':preorderOnly()||state.mode==='preorder'||a.kind==='preorder'?'Оформить предзаказ ':inStock()?'Собрать комплект ':'Оставить заявку ';
 }
 window.ACEFORM_receiveStock = payload => {if(pendingStock)pendingStock(payload);};
 async function refreshStock() {
@@ -122,12 +124,12 @@ document.querySelectorAll('.close').forEach(b=>b.onclick=()=>b.closest('dialog')
 function canPay() {return current().id==='dress'&&inStock()&&!bundleNeedsConfirmation()&&state.mode!=='preorder'&&Number.isSafeInteger(state.quantity)&&state.quantity>0&&state.quantity<=bundleLimit();}
 async function submitDirectPayment() {
  if(!canPay())return;trackAction('checkout_attempt');
- const key=[state.color,state.size,state.shortsSize,state.bundle,state.quantity].join('|'),amount=unitPrice()*state.quantity;
+ const key=[state.color,state.size,state.shortsSize,state.bundle,state.quantity].join('|'),amount=totalPrice();
  let nonce;try{const saved=JSON.parse(sessionStorage.getItem('aceform.checkoutDraft')||'null');nonce=saved?.key===key?saved.nonce:null;}catch{}
  nonce=nonce||window.crypto.randomUUID();try{sessionStorage.setItem('aceform.checkoutDraft',JSON.stringify({key,nonce}));}catch{}
  $('#review').disabled=true;$('#checkoutError').hidden=true;
  try {
-  const order=await window.ACEFORM_PAYMENT_BRIDGE.create({nonce,color:state.color,size:state.size,shortsSize:state.shortsSize,bundle:state.bundle,quantity:state.quantity,analyticsTest:window.ACEFORM_ANALYTICS?.test?'1':'0'});
+  const order=await (window.ACEFORM_CERTIFICATE||window.ACEFORM_PAYMENT_BRIDGE).create({nonce,color:state.color,size:state.size,shortsSize:state.shortsSize,bundle:state.bundle,quantity:state.quantity,analyticsTest:window.ACEFORM_ANALYTICS?.test?'1':'0'});
   if(order.amount!==amount||key!==[state.color,state.size,state.shortsSize,state.bundle,state.quantity].join('|'))throw Error('selection_changed');
   try{sessionStorage.setItem('aceform.pendingPayment',JSON.stringify(order));localStorage.setItem('aceform.latestOrder',JSON.stringify(order));}catch{}
   if(order.state!=='pending'){$('#review').disabled=false;window.ACEFORM_PAYMENT_BRIDGE.show(order);return;}
@@ -135,7 +137,7 @@ async function submitDirectPayment() {
   fields.successURL=window.location.origin+window.location.pathname+'#payment='+order.orderId+'.'+order.token;
   for(const [name,value] of Object.entries(fields))$('#walletCheckout').elements.namedItem(name).value=value;
   trackAction('checkout_redirect');window.ACEFORM_ANALYTICS?.sendOnExit();$('#walletCheckout').submit();
- } catch(error){$('#checkoutError').hidden=false;$('#checkoutError').textContent=error.message==='not_available'?'Выбранный комплект уже недоступен. Обновите наличие.':['extra_shorts_unconfirmed','bundle_needs_confirmation'].includes(error.message)?'Наличие выбранных шорт нужно подтвердить. Оставьте заявку на комплект.':'Не удалось подготовить оплату. Деньги не списаны. Попробуйте ещё раз.';$('#review').disabled=false;}
+ } catch(error){$('#checkoutError').hidden=false;$('#checkoutError').textContent=window.ACEFORM_CERTIFICATE?.error(error.message)||(error.message==='not_available'?'Выбранный комплект уже недоступен. Обновите наличие.':['extra_shorts_unconfirmed','bundle_needs_confirmation'].includes(error.message)?'Наличие выбранных шорт нужно подтвердить. Оставьте заявку на комплект.':'Не удалось подготовить оплату. Деньги не списаны. Попробуйте ещё раз.');$('#review').disabled=false;}
 }
 $('#review').onclick=()=>{render();if(canPay())return submitDirectPayment();trackAction('request_open');$('#summary').replaceChildren();for(const [k,v] of details()){const row=document.createElement('div');row.className='order-line';for(const value of [k,v]){const s=document.createElement('span');s.textContent=value;row.append(s)}$('#summary').append(row)}$('#orderForm').classList.remove('hidden');$('#result').classList.add('hidden');$('#orderDialog').showModal()};
 $('#orderForm').onsubmit=e=>{e.preventDefault();render();const f=new FormData(e.target);if(!f.get('customer').trim()||!f.get('contact').trim())return;trackAction('request_prepare');orderText='ЗАЯВКА ACEFORM\n\n'+details().map(([k,v])=>k+': '+v).join('\n')+'\n\nИмя: '+f.get('customer').trim()+'\nКонтакт: '+f.get('contact').trim()+(f.get('comment').trim()?'\nПожелания: '+f.get('comment').trim():'')+'\n\nНе является резервом. Наличие, цена и срок требуют подтверждения.';$('#orderText').textContent=orderText;$('#orderForm').classList.add('hidden');$('#result').classList.remove('hidden');$('#status').textContent=''};
