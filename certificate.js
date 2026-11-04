@@ -1,7 +1,7 @@
 (()=>{
  'use strict';
  const id='club1000',tg=window.Telegram?.WebApp,params=new URLSearchParams(location.search);
- let requested=params.get('certificate')===id||tg?.initDataUnsafe?.start_param==='cert_club1000';
+ let requested=params.get('certificate')===id||tg?.initDataUnsafe?.start_param==='cert_club1000'||params.get('tgWebAppStartParam')==='cert_club1000'||new URLSearchParams(location.hash.slice(1)).get('tgWebAppStartParam')==='cert_club1000';
  try{if(requested)localStorage.setItem('aceform.certificate',id);else requested=localStorage.getItem('aceform.certificate')===id;}catch{}
  let token=null,eligible=false,pending=null,frame=null,ready=null,bridgeNonce='',targetOrigin='';
  const waiting=new Map(),hex=()=>crypto.randomUUID().replace(/-/g,'');
@@ -25,7 +25,7 @@
  });
  async function rpc(body){await bridge();return new Promise((resolve,reject)=>{const request=hex(),timer=setTimeout(()=>{waiting.delete(request);reject(Error('unavailable'));},30000);waiting.set(request,{resolve,reject,timer});source.postMessage({kind:'aceform-certificate-request',nonce:bridgeNonce,id:request,body},targetOrigin);});}
  const box=document.createElement('section');box.className='certificate-offer';box.hidden=!requested;box.setAttribute('aria-live','polite');
- box.innerHTML='<small>ПОДАРОК ДЛЯ ТВОЕЙ ИГРЫ</small><h2>1 000 ₽ на первый заказ</h2><p id="certificateMessage"></p><a id="certificateTelegram" href="https://t.me/aceform_tree_bot?startapp=cert_club1000">Подтвердить через Telegram ↗</a><button id="certificateRetry" type="button" hidden>Проверить ещё раз</button><button id="certificatePending" type="button" hidden>Продолжить созданный заказ</button><button id="certificateSkip" type="button">Продолжить без сертификата</button><p class="hint">При заказе от 8 000 ₽. Один раз для подтверждённого Telegram-аккаунта. Не суммируется с другими скидками. Доставка отдельно.</p>';
+ box.innerHTML='<small>ПОДАРОК ДЛЯ ТВОЕЙ ИГРЫ</small><h2>1 000 ₽ на первый заказ</h2><p id="certificateMessage"></p><a id="certificateTelegram" href="https://t.me/aceform_bot/shop?startapp=cert_club1000">Подтвердить через Telegram ↗</a><button id="certificateRetry" type="button" hidden>Проверить ещё раз</button><button id="certificatePending" type="button" hidden>Продолжить созданный заказ</button><button id="certificateSkip" type="button">Продолжить без сертификата</button><p class="hint">При заказе от 8 000 ₽. Один раз для подтверждённого Telegram-аккаунта. Не суммируется с другими скидками. Доставка отдельно.</p>';
  document.querySelector('main header').after(box);
  const message=box.querySelector('#certificateMessage'),link=box.querySelector('#certificateTelegram'),retry=box.querySelector('#certificateRetry'),resume=box.querySelector('#certificatePending');
  function update(){if(typeof window.ACEFORM_CERTIFICATE_RENDER==='function')window.ACEFORM_CERTIFICATE_RENDER();}
