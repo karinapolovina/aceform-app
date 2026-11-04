@@ -6,7 +6,7 @@ if (tg?.initData) {try {tg.ready();tg.expand();tg.setHeaderColor('#f7f7f0');tg.s
 let state = {product:0,color:0,size:'M',quantity:1,mode:'query',filter:'all',bundle:'white',shortsSize:'M',shortsSizeCustomized:false};
 const commerce=window.ACEFORM_COMMERCE;
 let checkoutSettings={includedShorts:'unknown'};
-let inventory = [], receivedAt = 0, feedState = 'loading', pendingStock = null, orderText = '';
+let inventory = [], receivedAt = 0, feedState = 'loading', pendingStock = null, requestSelection = null;
 const money = n => new Intl.NumberFormat('ru-RU',{style:'currency',currency:'RUB',maximumFractionDigits:0}).format(n);
 function current() {return products[state.product];}
 function trackAction(event){window.ACEFORM_ANALYTICS?.track(event,{product:current().id,color:state.color,size:state.size,bundle:current().id==='dress'?state.bundle:''});}
@@ -139,10 +139,8 @@ async function submitDirectPayment() {
   trackAction('checkout_redirect');window.ACEFORM_ANALYTICS?.sendOnExit();$('#walletCheckout').submit();
  } catch(error){$('#checkoutError').hidden=false;$('#checkoutError').textContent=window.ACEFORM_CERTIFICATE?.error(error.message)||(error.message==='not_available'?'Выбранный комплект уже недоступен. Обновите наличие.':['extra_shorts_unconfirmed','bundle_needs_confirmation'].includes(error.message)?'Наличие выбранных шорт нужно подтвердить. Оставьте заявку на комплект.':'Не удалось подготовить оплату. Деньги не списаны. Попробуйте ещё раз.');$('#review').disabled=false;}
 }
-$('#review').onclick=()=>{render();if(canPay())return submitDirectPayment();trackAction('request_open');$('#summary').replaceChildren();for(const [k,v] of details()){const row=document.createElement('div');row.className='order-line';for(const value of [k,v]){const s=document.createElement('span');s.textContent=value;row.append(s)}$('#summary').append(row)}$('#orderForm').classList.remove('hidden');$('#result').classList.add('hidden');$('#orderDialog').showModal()};
-$('#orderForm').onsubmit=e=>{e.preventDefault();render();const f=new FormData(e.target);if(!f.get('customer').trim()||!f.get('contact').trim())return;trackAction('request_prepare');orderText='ЗАЯВКА ACEFORM\n\n'+details().map(([k,v])=>k+': '+v).join('\n')+'\n\nИмя: '+f.get('customer').trim()+'\nКонтакт: '+f.get('contact').trim()+(f.get('comment').trim()?'\nПожелания: '+f.get('comment').trim():'')+'\n\nНе является резервом. Наличие, цена и срок требуют подтверждения.';$('#orderText').textContent=orderText;$('#orderForm').classList.add('hidden');$('#result').classList.remove('hidden');$('#status').textContent=''};
-$('#copy').onclick=async()=>{try{await navigator.clipboard.writeText(orderText);trackAction('request_copy');$('#status').textContent='Скопировано. Отправьте заявку менеджеру ACEFORM.'}catch{$('#status').textContent='Не удалось скопировать. Скачайте заявку или выделите текст вручную.'}};
-$('#download').onclick=()=>{trackAction('request_download');const url=URL.createObjectURL(new Blob([orderText],{type:'text/plain;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='ACEFORM-order.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};$('#edit').onclick=()=>{$('#orderForm').classList.remove('hidden');$('#result').classList.add('hidden')};
+$('#review').onclick=()=>{render();if(canPay())return submitDirectPayment();trackAction('request_open');requestSelection={product:current().id,color:state.color,size:state.size,shortsSize:state.shortsSize,bundle:state.bundle,quantity:state.quantity,mode:state.mode};window.ACEFORM_PREORDER?.open();$('#summary').replaceChildren();for(const [k,v] of details()){const row=document.createElement('div');row.className='order-line';for(const value of [k,v]){const s=document.createElement('span');s.textContent=value;row.append(s)}$('#summary').append(row)}$('#orderForm').classList.remove('hidden');$('#result').classList.add('hidden');$('#orderDialog').showModal()};
+$('#orderForm').onsubmit=e=>{e.preventDefault();if(requestSelection)window.ACEFORM_PREORDER.submit(requestSelection);};
 function openSizeGuide() {
  const p=current(), fields=window.ACEFORM_SIZING.fields(p.id);
  $('#sizeTitle').textContent='Размер: '+p.name;
