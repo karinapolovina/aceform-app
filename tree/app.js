@@ -1,7 +1,8 @@
 'use strict';
 // Certificate launch keeps the original signed Telegram fragment across navigation.
 const certificateLaunch=window.Telegram?.WebApp;
-if(certificateLaunch?.initDataUnsafe?.start_param==='cert_club1000'){
+const isCertificateLaunch=certificateLaunch?.initDataUnsafe?.start_param==='cert_club1000'||new URLSearchParams(location.search).get('tgWebAppStartParam')==='cert_club1000';
+if(isCertificateLaunch){
  const target=new URL('../?certificate=club1000',location.href);
  const fragment=new URLSearchParams();fragment.set('tgWebAppData',certificateLaunch.initData);fragment.set('tgWebAppVersion',certificateLaunch.version||'8.0');fragment.set('tgWebAppPlatform',certificateLaunch.platform||'unknown');target.hash=fragment.toString();location.replace(target.href);
 }
@@ -179,4 +180,4 @@ async function boot(){
  }catch(error){app.innerHTML='<div class="empty"><h2>Сервер пока недоступен.</h2><p>'+esc(error.message)+'</p><button class="btn" id="retryBoot">Попробовать ещё раз ↗</button></div>';document.querySelector('#retryBoot').onclick=()=>boot();}
 }
 window.addEventListener('pagehide',capture);document.addEventListener('visibilitychange',()=>{if(document.hidden)capture();});
-document.querySelector('#mine').onclick=()=>go('#mine');window.addEventListener('hashchange',route);boot();
+document.querySelector('#mine').onclick=()=>go('#mine');window.addEventListener('hashchange',route);if(!isCertificateLaunch)boot();
