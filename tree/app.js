@@ -1,4 +1,11 @@
 'use strict';
+// Certificate launch keeps the original signed Telegram fragment across navigation.
+const certificateLaunch=window.Telegram?.WebApp;
+if(certificateLaunch?.initDataUnsafe?.start_param==='cert_club1000'){
+ const target=new URL('../?certificate=club1000',location.href);
+ const fragment=new URLSearchParams();fragment.set('tgWebAppData',certificateLaunch.initData);fragment.set('tgWebAppVersion',certificateLaunch.version||'8.0');fragment.set('tgWebAppPlatform',certificateLaunch.platform||'unknown');target.hash=fragment.toString();location.replace(target.href);
+}
+
 const app=document.querySelector('#app');
 const PRODUCTS=window.ACEFORM_CATALOG.flatMap(model=>model.colors.map((variant,index)=>({id:model.id==='dress'?['black','white','red'][index]:model.id+'-'+index,model:model.id,title:model.name.split(' · ')[0],color:variant[0],image:'../'+(model.id==='shorts'?['assets/shorts-white-side-catalog-v15.webp','assets/shorts-black-side-red-catalog-v15.webp'][index]:variant[2]),note:model.id==='dress'?'Комплект от 8 000 ₽':model.id==='shorts'?'Стоимость уточним при заказе':'По предзаказу'})));
 let selectedModel='dress';
