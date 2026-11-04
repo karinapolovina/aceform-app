@@ -37,7 +37,7 @@ function orderLimit() {return state.mode==='stock'?(current().id==='dress'?bundl
 function visibleProducts() {return products.filter(p=>commerce.matchesFilter(p,state.filter,inventory,receivedAt>0));}
 function bundleNeedsConfirmation() {return current().id==='dress'&&(state.shortsSize!==state.size||bundleLimit()<1);}
 function unitPrice() {return commerce.unitPrice(current(),state.bundle,variant());}
-function totalPrice(){const subtotal=unitPrice()*state.quantity;return subtotal-(canPay()?(window.ACEFORM_CERTIFICATE?.discount(subtotal)||0):0);}
+function totalPrice(){const subtotal=unitPrice()*state.quantity;return subtotal-(window.ACEFORM_CERTIFICATE?.discount(subtotal)||0);}
 window.ACEFORM_CERTIFICATE_RENDER=()=>render();
 function selectProduct(i) {
  state.product=i;state.color=0;state.quantity=1;state.mode='query';
@@ -120,7 +120,7 @@ async function refreshStock() {
  } catch {feedState='error';}
  finally {clearTimeout(timer);script?.remove();pendingStock=null;render();}
 }
-function details() {const p=current(),price=unitPrice();return [['Изделие',p.name],['Цвет',p.colors[state.color][0]],['Размер',state.size],...(p.id==='dress'?[['Комплектация',state.bundle==='both'?'EVERT + белые и чёрные MARBLE (2 пары)':'EVERT + '+(state.bundle==='white'?'белые':'чёрные')+' MARBLE (1 пара)'],['Размер шорт',state.shortsSize]]:[]),['Формат',state.mode==='stock'?'Из наличия':state.mode==='preorder'?'Предзаказ':'Уточнить наличие'],['Количество',state.quantity+' шт.'],['Стоимость',price!==null?money(price*state.quantity):'Уточняется']];}
+function details() {const p=current(),price=unitPrice(),subtotal=price===null?null:price*state.quantity,discount=subtotal===null?0:(window.ACEFORM_CERTIFICATE?.discount(subtotal)||0);return [['Изделие',p.name],['Цвет',p.colors[state.color][0]],['Размер',state.size],...(p.id==='dress'?[['Комплектация',state.bundle==='both'?'EVERT + белые и чёрные MARBLE (2 пары)':'EVERT + '+(state.bundle==='white'?'белые':'чёрные')+' MARBLE (1 пара)'],['Размер шорт',state.shortsSize]]:[]),['Формат',state.mode==='stock'?'Из наличия':state.mode==='preorder'?'Предзаказ':'Уточнить наличие'],['Количество',state.quantity+' шт.'],['Стоимость',subtotal!==null?money(subtotal):'Уточняется'],...(discount?[['Сертификат ACEFORM','−'+money(discount)],['Итого',money(subtotal-discount)]]:[])];}
 $('#minus').onclick=()=>{state.quantity=Math.max(1,state.quantity-1);render()};$('#plus').onclick=()=>{const max=orderLimit();state.quantity=Math.min(max,state.quantity+1);render()};
 document.querySelectorAll('.close').forEach(b=>b.onclick=()=>b.closest('dialog').close());$('#sizesHelp').onclick=openSizeGuide;$('#stockRefresh').onclick=refreshStock;
 function canPay() {return current().id==='dress'&&inStock()&&!bundleNeedsConfirmation()&&state.mode!=='preorder'&&Number.isSafeInteger(state.quantity)&&state.quantity>0&&state.quantity<=bundleLimit();}

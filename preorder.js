@@ -27,7 +27,7 @@
    document.querySelector('#preorderReference').textContent='№ '+result.id.slice(0,8).toUpperCase();
    document.querySelector('#preorderSuccessText').textContent=result.duplicate?'Эта заявка уже получена. Повторно отправлять её не нужно.':'Заявка получена. Итог заказа придёт в @'+(result.botUsername==='aceform_tree_bot'?'aceform_tree_bot':'aceform_bot')+'. Там можно проверить состав, подтвердить заказ и оплатить 50% предоплаты, когда указана цена.';
    const orderLink=document.querySelector('#preorderOrderLink');orderLink.href='https://t.me/aceform_bot/shop?startapp=order_'+result.id;orderLink.hidden=false;
-   if(data.certificate)document.querySelector('#preorderSuccessText').textContent+=' Сертификат проверим при согласовании заказа.';
+   if(data.certificate)document.querySelector('#preorderSuccessText').textContent+=' Применение сертификата показано в итоговом заказе.';
   }catch(e){error.hidden=false;error.textContent=(e.message||'').replace('Проверь «Моё желание» перед повторной отправкой.','Повтори отправку — дубль заявки не создастся.')||'Не удалось отправить заявку. Проверь соединение и попробуй ещё раз. Данные формы сохранены.';}
   finally{busy=false;button.disabled=false;button.textContent='Отправить заявку ↗';}
  }};
