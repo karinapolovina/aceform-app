@@ -9,7 +9,7 @@
  const request=(p,m='GET',data)=>window.ACEFORM_TREE_TRANSPORT.request(p,m,data,token);
  function intake(o){
   const previous=o.intake?.value||{},step=params.get('step');
-  const selected=previous.intent||(step==='change'?'change':step==='size'?'size':'confirm');
+  const selected=step==='change'?'change':step==='size'?'size':step==='delivery'?'confirm':previous.intent||'confirm';
   return `<section class="intake"><h2>Как получить твою форму?</h2><p>Проверь выбор, укажи город и удобный способ получения. Стоимость доставки подтвердим отдельно.</p>
    <form id="intakeForm"><label for="intent">Следующий шаг</label><select id="intent" name="intent">${[['confirm','Всё верно · выбрать доставку'],['change','Хочу изменить выбор'],['size','Нужна помощь с размером']].map(([v,t])=>`<option value="${v}" ${selected===v?'selected':''}>${t}</option>`).join('')}</select>
    <label for="city">Город получения</label><input id="city" name="city" autocomplete="address-level2" maxlength="80" value="${esc(previous.city||'')}" placeholder="Например, Санкт-Петербург">
