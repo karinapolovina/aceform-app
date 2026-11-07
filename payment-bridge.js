@@ -29,7 +29,7 @@
   else if(data.state==='pending'&&data.reserveExpiresAt)$('#paymentReturnText').textContent=(data.reservationReleased?'Резерв отменён.':'Время резерва истекло.')+' Если ещё не оплатили, выберите комплект заново. Если деньги списались — свяжитесь с ACEFORM и не платите повторно.';
   $('#paymentReturnRetry').hidden=paid&&!processing;$('#paymentReturnState').dataset.kind=paid?'available':'unknown';$('#paymentReturnState').textContent=paid?'Подтверждено ЮMoney':data.state==='underpaid'?'Неполная сумма':'Ожидаем подтверждение';
   window.ACEFORM_DELIVERY?.render(data,active);
-  if(paid){clearTimeout(pollTimer);try{sessionStorage.setItem('aceform.pendingPayment',JSON.stringify({...data,token:active.token}));localStorage.setItem('aceform.latestOrder',JSON.stringify({...data,token:active.token}));sessionStorage.removeItem('aceform.checkoutDraft');}catch{}$('#lastPayment').hidden=false;$('#lastPayment').textContent='Мой заказ';$('#lastPayment').onclick=()=>show(active);}
+  if(paid){window.ACEFORM_REQUEST_CART?.settlePayment(data.orderId);clearTimeout(pollTimer);try{sessionStorage.setItem('aceform.pendingPayment',JSON.stringify({...data,token:active.token}));localStorage.setItem('aceform.latestOrder',JSON.stringify({...data,token:active.token}));sessionStorage.removeItem('aceform.checkoutDraft');}catch{}$('#lastPayment').hidden=false;$('#lastPayment').textContent='Мой заказ';$('#lastPayment').onclick=()=>show(active);}
   return paid&&!processing;
  }
  async function poll(){
