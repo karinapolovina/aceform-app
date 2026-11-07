@@ -27,5 +27,5 @@
   });
   return ready.catch(error=>{ready=null;throw error;});
  }
- window.ACEFORM_TREE_TRANSPORT={async request(path,method='GET',data,token){await connect();return new Promise((resolve,reject)=>{const id=random(),timer=setTimeout(()=>{pending.delete(id);disconnect();reject(Error('Ответ задерживается. Проверь «Моё желание» перед повторной отправкой.'));},30000);pending.set(id,{resolve,reject,timer});peer.postMessage({kind:'aceform-tree-request',nonce,id,request:{path,method,data:data||{},token:token||'',nonce:id}},peerOrigin);});}};
+ window.ACEFORM_TREE_TRANSPORT={warm:connect,async request(path,method='GET',data,token){await connect();return new Promise((resolve,reject)=>{const id=random(),timer=setTimeout(()=>{pending.delete(id);disconnect();reject(Error('Ответ задерживается. Проверь «Моё желание» перед повторной отправкой.'));},30000);pending.set(id,{resolve,reject,timer});peer.postMessage({kind:'aceform-tree-request',nonce,id,request:{path,method,data:data||{},token:token||'',nonce:id}},peerOrigin);});}};
 })();
