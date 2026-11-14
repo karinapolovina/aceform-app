@@ -12,7 +12,7 @@
    e.preventDefault();if(!form.reportValidity())return;
    const extra=product==='aperol-suit'?'skirtSize':'shortsSize',selection={product,color,size:form.elements.size.value,[extra]:form.elements[extra].value,quantity:1,mode:'preorder'};
    const error=form.querySelector('.aperol-error');error.hidden=true;
-   try{window.ACEFORM_REQUEST_CART.add([selection]);window.ACEFORM_REQUEST_CART.openCart();}catch(e){error.textContent=e.message;error.hidden=false;}
+   try{window.ACEFORM_REQUEST_CART.add([selection]);}catch(e){error.textContent=e.message;error.hidden=false;}
   };
   figure.append(form);
  }
