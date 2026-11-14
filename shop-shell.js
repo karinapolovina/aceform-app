@@ -39,7 +39,7 @@
  function applyLimited(){
   if(!limited||active!=='product')return;
   const c=limited,preview=c.index===3,model=window.ACEFORM_APEROL_CATALOG.find(p=>p.id===(c.product==='dress'?'aperol-dress':'aperol-suit'));
-  const src=['assets/aperol-studio-dress-navy-v1.jpg','assets/aperol-studio-suit-navy-orange-v1.jpg','assets/aperol-studio-dress-orange-v1.jpg','assets/aperol-studio-suit-orange-navy-v1.jpg'][c.index];
+  const src=['assets/aperol-studio-dress-navy-v1.jpg','assets/aperol-studio-suit-navy-orange-v2.jpg','assets/aperol-studio-dress-orange-v1.jpg','assets/aperol-studio-suit-orange-navy-v2.jpg'][c.index];
   $('#productDetails').classList.add('limited-selection');inlineLimited.hidden=false;
   const img=document.createElement('img');img.className='fit-main';img.src=src;img.alt=model.name+' · '+c.label+' · визуализация расцветки';$('#preview').replaceChildren(img);
   $('#colorName').textContent=c.label+' · Апероль';inlinePrice.textContent=rub(model.price)+' · за комплект';
