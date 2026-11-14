@@ -16,3 +16,14 @@
 .aperol-order{margin:14px 4px 0}.aperol-sizes select{background:#fffdf8}
 .april-collection>a{margin:26px 24px 0}
 @media(max-width:360px){.aperol-cover{min-height:460px;padding-top:28px}.aperol-motto{font-size:27px}.april-gallery{margin-inline:12px}}
+
+/* Keep arrows aligned and all collection content inside narrow viewports. */
+.aperol-order .primary{gap:12px;text-align:left;line-height:1.4}
+.aperol-order .primary>span:first-child{flex:1;min-width:0}
+.aperol-order .primary .aperol-arrow{flex:0 0 18px;width:18px;text-align:center;font-size:20px;line-height:1}
+.aperol-sizes label{min-width:0;line-height:1.5}
+.aperol-sizes select{display:block;width:100%;max-width:100%;box-sizing:border-box;appearance:none;-webkit-appearance:none;border:1px solid #c5cebf;border-radius:3px;padding:12px 32px 12px 12px;margin-top:7px;color:#203d32;font:inherit;line-height:1.4;background:#fffdf8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='m1 1 5 5 5-5' fill='none' stroke='%23203d32' stroke-width='1.5'/%3E%3C/svg%3E") right 12px center/12px 8px no-repeat}
+.aperol-discover{display:inline-flex;align-items:center;gap:10px;line-height:1.4}
+.sticky.aperol-context>*:not(#basketDock){display:none!important}
+.sticky.aperol-context #basketDock{margin-top:0}
+@media(max-width:370px){.april-collection{margin-left:-18px;margin-right:-18px}}
