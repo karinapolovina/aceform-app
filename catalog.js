@@ -7,5 +7,5 @@ window.ACEFORM_CATALOG = [
 
 window.ACEFORM_APEROL_CATALOG = [
  {id:'aperol-dress',name:'Комплект EVERT + MARBLE · Апероль',price:9000,colors:[['Тёмно-синий','#15325c','assets/april-evert-navy.jpg'],['Оранжевый','#e76123','assets/april-evert-orange.jpg']]},
- {id:'aperol-suit',name:'Костюм GRAF + BUENO · Апероль',price:11900,colors:[['Тёмно-синий топ / оранжевая юбка','#e76123','assets/april-graf-bueno.jpg']]}
+ {id:'aperol-suit',name:'Костюм GRAF + BUENO · Апероль',price:11900,colors:[['Тёмно-синий топ / оранжевая юбка','#e76123','assets/april-graf-bueno.jpg'],['Оранжевый топ / тёмно-синяя юбка','#15325c','assets/aperol-graf-orange-bueno-navy-preview.jpg']]}
 ];

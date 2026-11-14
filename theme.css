@@ -31,3 +31,12 @@ body[data-shop-screen="product"] .sticky{bottom:var(--shop-nav-height);padding:1
 @media(max-width:360px){.shop-buy-bar,body[data-shop-screen="product"] .sticky{padding:10px 18px}.shop-full-outfit .aperol-sizes{grid-template-columns:repeat(2,minmax(0,1fr))}.shop-full-outfit .aperol-sizes select{font-size:12px}}
 
 body[data-shop-screen="product"] #inquiryIntro>.shop-product-price,body[data-shop-screen="product"] #dressIntro>.shop-product-price{display:block!important}
+
+/* Limited colors change the photograph and ordering controls in place. */
+#productDetails.limited-selection #fitGallery,#productDetails.limited-selection #dressBundle,#productDetails.limited-selection #outfitOpen,#productDetails.limited-selection #sizeChoice,#productDetails.limited-selection #sizes,#productDetails.limited-selection #sizeHint{display:none!important}
+body:has(#productDetails.limited-selection) .sticky{display:none!important}
+.shop-inline-limited[hidden]{display:none}.shop-inline-limited .aperol-price,.shop-inline-limited .shop-outfit-palette,.shop-inline-limited .aperol-order>p.hint{display:none!important}
+.shop-inline-limited .aperol-order{margin:0}.shop-inline-note{font:400 12px/1.65 var(--sans);color:var(--muted);margin:14px 0 8px}.shop-inline-limited .aperol-sizes{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.shop-inline-limited .aperol-sizes label{margin-top:0;font-size:11px}.shop-inline-limited .aperol-order details{margin:14px 0 20px}.shop-inline-limited .shop-buy-bar .primary{margin-top:0}.shop-preview-form .shop-buy-bar .primary:disabled{background:#66766b;color:#fff;cursor:default}
+#productDetails.limited-selection .studio{height:clamp(300px,44svh,420px);min-height:0}#productDetails.limited-selection #preview{height:100%;width:100%}#productDetails.limited-selection .fit-main{display:block;width:100%;height:100%;object-fit:cover;object-position:center 35%}
+
+.shop-render-note{font:400 10px/1.5 var(--sans);color:var(--muted);margin:8px 0}.shop-inline-limited .aperol-sizes select{font-size:12px;padding-left:10px}.shop-inline-limited .aperol-sizes label{display:grid;grid-template-rows:1fr 44px;gap:5px}.shop-inline-limited .aperol-sizes select{height:44px;margin-top:0}
