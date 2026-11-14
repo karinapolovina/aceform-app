@@ -27,3 +27,6 @@
 .sticky.aperol-context>*:not(#basketDock){display:none!important}
 .sticky.aperol-context #basketDock{margin-top:0}
 @media(max-width:370px){.april-collection{margin-left:-18px;margin-right:-18px}}
+
+.aperol-cover{width:100%;min-width:0}
+@media(max-width:400px){header{flex-wrap:wrap}header .brand{min-width:0}header .tag{margin-left:auto}header .basket-open{margin-left:auto;flex-shrink:0}}
