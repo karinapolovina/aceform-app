@@ -40,7 +40,7 @@
  window.ACEFORM_STOREFRONT={open(id){location.hash='product/'+id;},colors:collectionColors};
 
  const inlinePrice=make('p','shop-product-price','');
- const syncPrice=()=>{inlinePrice.textContent=$('#price').textContent;const product=location.hash.split('/')[1];(product==='dress'?$('#dressIntro'):$('#inquiryIntro')).append(inlinePrice);};
+ const syncPrice=()=>{inlinePrice.textContent=$('#price').textContent;$('#purchaseOptions').prepend(inlinePrice);};
  new MutationObserver(syncPrice).observe($('#price'),{childList:true,characterData:true,subtree:true});
  const measureNav=()=>document.documentElement.style.setProperty('--shop-nav-height',nav.getBoundingClientRect().height+'px');
  new ResizeObserver(measureNav).observe(nav);measureNav();
