@@ -1,0 +1,18 @@
+/* Апероль: Mediterranean collection cover and warm product cards. */
+.april-collection{margin:30px -24px 0;padding:0 0 24px;border:0;background:#fff0dc;color:#143d2c;overflow:hidden}
+.aperol-cover{position:relative;isolation:isolate;min-height:500px;aspect-ratio:4/5;box-sizing:border-box;padding:32px 18px 28px;text-align:center;background:#fff0dc url("assets/aperol-coast-v1.jpg") center/cover no-repeat;display:flex;flex-direction:column;align-items:center}
+.april-collection .aperol-cover .eyebrow{font:16px/1.3 Georgia,serif;letter-spacing:.32em;margin:0 0 26px;padding-left:.32em}
+.aperol-motto{font:clamp(28px,7vw,43px)/1.12 Georgia,serif;margin:0 0 23px;color:#123d2b}
+.aperol-motto em{font-weight:normal}
+.april-collection .aperol-cover h2{font:normal clamp(48px,13vw,72px)/1 Georgia,serif;letter-spacing:-1px;margin:0}
+.aperol-edition{font:10px/1.6 Arial,sans-serif;letter-spacing:.2em;text-transform:uppercase;margin:16px 0 0}
+.aperol-discover{display:inline-block;margin-top:26px;color:#163d2c;background:rgba(255,246,231,.88);border:1px solid #486447;padding:12px 17px;font-size:12px;text-decoration:none;border-radius:2px}
+.aperol-intro{padding:28px 24px 0;scroll-margin-top:20px}
+.aperol-intro .eyebrow{font-size:10px;letter-spacing:.15em}
+.aperol-intro>p:last-child{font-size:14px;line-height:1.7;margin-bottom:0;color:#536050}
+.april-gallery{margin:22px 16px 0;gap:24px}
+.april-gallery figure{background:#fffaf1;padding:10px 10px 18px;border:1px solid #e9d9c0;border-radius:6px;box-shadow:0 4px 18px #704f2810}
+.april-gallery figcaption{font:normal 21px/1.3 Georgia,serif;margin:16px 4px 0}
+.aperol-order{margin:14px 4px 0}.aperol-sizes select{background:#fffdf8}
+.april-collection>a{margin:26px 24px 0}
+@media(max-width:360px){.aperol-cover{min-height:460px;padding-top:28px}.aperol-motto{font-size:27px}.april-gallery{margin-inline:12px}}
