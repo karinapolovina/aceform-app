@@ -4,3 +4,8 @@ window.ACEFORM_CATALOG = [
  {id:'top',name:'Топ GRAF · Граф',stockName:'Топ',subtitle:'Собранность перед ударом',colors:[['Молочный','#f7f5ef','assets/top-white-catalog.jpg'],['Фуксия','#f512a4','assets/top-fuchsia-catalog.jpg'],['Жёлтый','#f5d325','assets/top-yellow-catalog.jpg'],['Чёрный','#252827','assets/top-black-catalog.jpg']]},
  {id:'shorts',name:'Шорты MARBLE · Марбл',stockName:'Шорты',subtitle:'Своя форма игры',colors:[['Белый','#f7f3e8','assets/dress-white-catalog.jpg'],['Чёрный','#252827',null]]}
 ];
+
+window.ACEFORM_APEROL_CATALOG = [
+ {id:'aperol-dress',name:'Комплект EVERT + MARBLE · Апероль',price:9000,colors:[['Тёмно-синий','#15325c','assets/april-evert-navy.jpg'],['Оранжевый','#e76123','assets/april-evert-orange.jpg']]},
+ {id:'aperol-suit',name:'Костюм GRAF + BUENO · Апероль',price:11900,colors:[['Тёмно-синий топ / оранжевая юбка','#e76123','assets/april-graf-bueno.jpg']]}
+];
