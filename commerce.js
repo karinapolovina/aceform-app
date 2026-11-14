@@ -1,4 +1,11 @@
 window.ACEFORM_COMMERCE = {
+ basketPrice(items) {
+  if(!items.length||items.some(s=>!['top','skirt'].includes(s.product)))return null;
+  let pairs=items.filter(s=>s.product==='skirt').reduce((n,s)=>n+s.quantity,0),discount=0;
+  const lines=items.map(s=>{const unit=s.product==='top'?2900:8900,paired=s.product==='top'?Math.min(pairs,s.quantity):0;pairs-=paired;discount+=paired*900;return {selection:s,unit,total:unit*s.quantity-paired*900,paired};});
+  const subtotal=items.reduce((n,s)=>n+(s.product==='top'?2900:8900)*s.quantity,0);
+  return {lines,subtotal,discount,total:subtotal-discount};
+ },
  bundleLimit(bundle,size,inventory,included,dressQuantity) {
   if(!['white','black','either'].includes(included))return 0;
   if(bundle!=='both')return included==='either'||included===bundle?dressQuantity:0;
@@ -11,6 +18,8 @@ window.ACEFORM_COMMERCE = {
  orderLimit(p,variant) {return p.id==='shorts'?99:variant?.quantity??99;},
  unitPrice(p,bundle,variant) {
   if(p.id==='dress')return bundle==='both'?9500:8000;
+  if(p.id==='top')return 2900;
+  if(p.id==='skirt')return 8900;
   return variant?.price??null;
  },
  stockRows(p,inventory,fresh) {
