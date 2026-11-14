@@ -28,7 +28,7 @@
  }
  back.onclick=()=>{location.hash=active==='outfit'?'april':'shop';};
  $('#shopCart').onclick=()=>window.ACEFORM_REQUEST_CART.openCart();
- $('#products').addEventListener('click',e=>{const card=e.target.closest('.product-card');if(!card)return;const button=card.querySelector('.product'),index=[...$('#products').children].indexOf(card),p=window.ACEFORM_CATALOG.filter(p=>true)[index];if(!p)return;const selected=window.ACEFORM_SHOP.selection();location.hash='product/'+selected.product;});
+ window.ACEFORM_STOREFRONT={open(id){location.hash='product/'+id;}};
  const basket=$('#basketDialog');
  function tidyBasket(){const gift=$('.certificate-offer');if(gift&&gift.parentElement!==basket){$('#basketActions').after(gift);}const n=window.ACEFORM_REQUEST_CART.value().reduce((s,x)=>s+x.quantity,0);$('#shopCart span').textContent=n?'· '+n:'';}
  basket.addEventListener('close',tidyBasket);$('#shopCart').addEventListener('click',tidyBasket);$('#basketOpen').addEventListener('click',tidyBasket);
