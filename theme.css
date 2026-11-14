@@ -40,3 +40,9 @@ body:has(#productDetails.limited-selection) .sticky{display:none!important}
 #productDetails.limited-selection .studio{height:clamp(300px,44svh,420px);min-height:0}#productDetails.limited-selection #preview{height:100%;width:100%}#productDetails.limited-selection .fit-main{display:block;width:100%;height:100%;object-fit:cover;object-position:center 35%}
 
 .shop-render-note{font:400 10px/1.5 var(--sans);color:var(--muted);margin:8px 0}.shop-inline-limited .aperol-sizes select{font-size:12px;padding-left:10px}.shop-inline-limited .aperol-sizes label{display:grid;grid-template-rows:1fr 44px;gap:5px}.shop-inline-limited .aperol-sizes select{height:44px;margin-top:0}
+
+/* A single studio framing across standard and limited colors in product cards. */
+body[data-shop-screen="product"] #productDetails .studio{height:clamp(330px,46svh,430px);min-height:0;background:#f0eeea}
+body[data-shop-screen="product"] #productDetails .studio:before,body[data-shop-screen="product"] #productDetails .studio:after{display:none}
+body[data-shop-screen="product"] #productDetails #preview{width:100%;height:100%}
+body[data-shop-screen="product"] #productDetails #preview .fit-main{display:block;width:100%;height:100%;max-height:none;object-fit:contain;object-position:center;mix-blend-mode:normal}
