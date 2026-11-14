@@ -46,3 +46,5 @@ body[data-shop-screen="product"] #productDetails .studio{height:clamp(330px,46sv
 body[data-shop-screen="product"] #productDetails .studio:before,body[data-shop-screen="product"] #productDetails .studio:after{display:none}
 body[data-shop-screen="product"] #productDetails #preview{width:100%;height:100%}
 body[data-shop-screen="product"] #productDetails #preview .fit-main{display:block;width:100%;height:100%;max-height:none;object-fit:contain;object-position:center;mix-blend-mode:normal}
+
+body[data-shop-screen="product"] #sizeHint,body[data-shop-screen="product"] #bundlePriceNote,body[data-shop-screen="product"] #studioTitle{display:none!important}.shop-info p{font-size:13px;line-height:1.8}
