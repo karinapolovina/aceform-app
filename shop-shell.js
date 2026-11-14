@@ -41,10 +41,10 @@
   const c=limited,preview=c.index===3,model=window.ACEFORM_APEROL_CATALOG.find(p=>p.id===(c.product==='dress'?'aperol-dress':'aperol-suit'));
   const src=['assets/aperol-studio-dress-navy-v1.jpg','assets/aperol-studio-suit-navy-orange-v2.jpg','assets/aperol-studio-dress-orange-v1.jpg','assets/aperol-studio-suit-orange-navy-v2.jpg'][c.index];
   $('#productDetails').classList.add('limited-selection');inlineLimited.hidden=false;
-  const img=document.createElement('img');img.className='fit-main';img.src=src;img.alt=model.name+' · '+c.label+' · визуализация расцветки';$('#preview').replaceChildren(img);
+  const img=document.createElement('img');img.className='fit-main';img.src=src;img.alt=model.name+' · '+c.label;$('#preview').replaceChildren(img);
   $('#colorName').textContent=c.label+' · Апероль';inlinePrice.textContent=rub(model.price)+' · за комплект';
   $('#colors').querySelectorAll('button').forEach(b=>{const selected=b.dataset.aperolIndex===String(c.index);b.classList.toggle('selected',selected);b.setAttribute('aria-pressed',String(selected));});
-  if(!inlineLimited.querySelector('form')){const note=make('p','shop-inline-note',c.product==='dress'?'EVERT + одна пара шорт MARBLE · визуализация расцветки.':'GRAF + BUENO · продаются костюмом. Визуализация расцветки.');inlineLimited.append(note,figures[c.index].querySelector('form'));}
+  if(!inlineLimited.querySelector('form')){const note=make('p','shop-inline-note',c.product==='dress'?'EVERT + одна пара шорт MARBLE.':'GRAF + BUENO · продаются костюмом.');inlineLimited.append(note,figures[c.index].querySelector('form'));}
  }
  function chooseLimited(c,id){restoreForms();limited={...c,product:id};applyLimited();}
  function collectionColors(id){
