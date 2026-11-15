@@ -2,7 +2,7 @@
  'use strict';
  const tg=window.Telegram?.WebApp;tg?.ready();tg?.expand();
  const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const money=n=>(n/100).toLocaleString('ru-RU',{style:'currency',currency:'RUB',maximumFractionDigits:0});
+ const money=n=>(n/100).toLocaleString('ru-RU',{style:'currency',currency:'RUB',maximumFractionDigits:2});
  const params=new URLSearchParams(location.search),id=params.get('order'),path='/api/shop/my/'+id;
  const backUrl=new URL('./?screen=my-orders',location.href);if(tg?.initData){const f=new URLSearchParams();f.set('tgWebAppData',tg.initData);f.set('tgWebAppVersion',tg.version||'8.0');f.set('tgWebAppPlatform',tg.platform||'unknown');backUrl.hash=f.toString();}if($('#ordersBack'))$('#ordersBack').href=backUrl.href;document.querySelectorAll('[data-order-nav]').forEach(a=>{const u=new URL('./?screen='+a.dataset.orderNav,location.href);u.hash=backUrl.hash;a.href=u.href;});
  const methods={cdek:'СДЭК',courier:'Курьер',pickup:'Самовывоз',avito:'Авито'};

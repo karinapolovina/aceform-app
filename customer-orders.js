@@ -3,7 +3,7 @@
  'use strict';
  const root=document.querySelector('#shopOrders');if(!root)return;
  const tg=window.Telegram?.WebApp,esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const rub=n=>(n/100).toLocaleString('ru-RU',{style:'currency',currency:'RUB',maximumFractionDigits:0});
+ const rub=n=>(n/100).toLocaleString('ru-RU',{style:'currency',currency:'RUB',maximumFractionDigits:2});
  let token=null,busy=false,offset=0,orders=[];
  root.innerHTML='<p class="shop-kicker">ACEFORM · ТВОИ ПОКУПКИ</p><h1>Мои заказы</h1><div class="order-list-toolbar"><p id="customerOrdersStatus" role="status"></p><button class="size-link" id="customerOrdersRefresh" type="button">Обновить ↻</button></div><p id="customerOrdersError" role="alert" hidden></p><div id="customerOrdersList"></div><button class="secondary" id="customerOrdersMore" hidden>Показать ещё</button>';
  const $=s=>root.querySelector(s),request=(path,method='GET',data)=>window.ACEFORM_TREE_TRANSPORT.request(path,method,data,token);
