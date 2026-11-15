@@ -1,6 +1,6 @@
 /* Апероль: Mediterranean collection cover and warm product cards. */
 .april-collection{margin:30px -24px 0;padding:0 0 24px;border:0;background:#fff0dc;color:#143d2c;overflow:hidden}
-.aperol-cover{position:relative;isolation:isolate;min-height:500px;aspect-ratio:4/5;box-sizing:border-box;padding:32px 18px 28px;text-align:center;background:#fff0dc url("assets/fast-aperol-coast-v1.jpg") center/cover no-repeat;display:flex;flex-direction:column;align-items:center}
+.aperol-cover{position:relative;isolation:isolate;min-height:500px;aspect-ratio:4/5;box-sizing:border-box;padding:32px 18px 28px;text-align:center;background:#fff0dc url("assets/aperol-cover-720.jpg") center/cover no-repeat;display:flex;flex-direction:column;align-items:center}
 .april-collection .aperol-cover .eyebrow{font:16px/1.3 Georgia,serif;letter-spacing:.32em;margin:0 0 26px;padding-left:.32em}
 .aperol-motto{font:clamp(28px,7vw,43px)/1.12 Georgia,serif;margin:0 0 23px;color:#123d2b}
 .aperol-motto em{font-weight:normal}

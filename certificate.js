@@ -50,5 +50,5 @@
  },error(code){
   const messages={certificate_login_required:'Для сертификата подтвердите вход через Telegram.',certificate_used:'Сертификат уже использован. Обновите страницу.',certificate_pending:'Сертификат уже привязан к другому заказу. Нажмите «Продолжить созданный заказ» выше.',certificate_unavailable:'Нужна помощь с сертификатом. Свяжитесь с ACEFORM.'};return messages[code];
  }};
- if(requested||tg?.initData)activate();
+ if(requested||tg?.initData){const start=()=>setTimeout(activate,250);if(document.readyState==='complete')start();else addEventListener('load',start,{once:true});}
 })();

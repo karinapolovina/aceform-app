@@ -15,7 +15,7 @@
  }
  function batch(){if(!queue.length)return [];const first=queue[0];return queue.filter(e=>e.visitor===first.visitor&&e.session===first.session).slice(0,6).map(({at,...e})=>e);}
  async function flush(){
-  if(busy||!enabled||!queue.length||!window.ACEFORM_PAYMENT_BRIDGE)return;busy=true;
+  if(document.readyState!=='complete'||busy||!enabled||!queue.length||!window.ACEFORM_PAYMENT_BRIDGE)return;busy=true;
   try{const data=await window.ACEFORM_PAYMENT_BRIDGE.request('recordAnalytics',{events:JSON.stringify(batch())});if(Array.isArray(data.accepted)){const ids=new Set(data.accepted);queue=queue.filter(e=>!ids.has(e.id));save();}}
   catch{}finally{busy=false;}
  }
@@ -28,5 +28,5 @@
   track('app_open');flush();
  }
  window.ACEFORM_ANALYTICS={track,view,flush,sendOnExit,get test(){return test===1;}};
- document.addEventListener('visibilitychange',()=>{if(document.hidden)sendOnExit();else flush();});window.addEventListener('pagehide',sendOnExit);setInterval(flush,8000);setTimeout(start,0);
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)sendOnExit();else flush();});window.addEventListener('pagehide',sendOnExit);setInterval(flush,8000);if(document.readyState==='complete')setTimeout(start,0);else addEventListener('load',()=>setTimeout(start,0),{once:true});
 })();
