@@ -2,7 +2,7 @@
 Run with Python 3; component sources remain independently editable.
 """
 from pathlib import Path
-import re,hashlib,gzip,json
+import re,hashlib,gzip,json,argparse,subprocess,shutil
 ROOT=Path(__file__).resolve().parent
 html=(ROOT/'index.template.html').read_text()
 # Preserve styles in cascade order, but remove extra blocking round trips.
@@ -24,6 +24,9 @@ html=html.replace('</body>',nav+'</body>')
 paths=re.findall(r'<script defer src="([^"]+)"></script>',html)
 if 'media-priority.js' not in paths:paths.insert(next(i for i,v in enumerate(paths) if v.startswith('models.js'))+1,'media-priority.js')
 runtime=';\n'.join('/* Source: '+p.split('?')[0]+' */\n'+(ROOT/p.split('?')[0]).read_text() for p in paths)+';\n'
+parser=argparse.ArgumentParser();parser.add_argument('--minifier',default=shutil.which('esbuild'));args=parser.parse_args()
+if args.minifier:
+ runtime=subprocess.run([args.minifier,'--minify','--target=es2020','--charset=utf8','--legal-comments=inline'],input=runtime,text=True,capture_output=True,check=True).stdout
 version=hashlib.sha256(runtime.encode()).hexdigest()[:12]
 name='store-runtime-'+version+'.js';(ROOT/name).write_text(runtime)
 html=re.sub(r'<script defer src="[^"]+"></script>','',html)
