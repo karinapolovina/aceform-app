@@ -14,11 +14,11 @@
  function prepareProduct(id){
   if(document.readyState!=='complete'){addEventListener('load',()=>prepareProduct(id),{once:true});return;}
   if(document.body.dataset.shopScreen!=='product'||prepared===id||navigator.connection?.saveData)return;
-  prepared=id;queue=[];
+  queue=[];
   const model=window.ACEFORM_MODELS[id]||[],sources=model.map(views=>views[0]);
   if(id==='dress')sources.push('assets/fast-aperol-studio-dress-navy-v1.jpg','assets/fast-aperol-studio-dress-orange-v1.jpg');
   if(id==='top'||id==='skirt')sources.push('assets/fast-aperol-studio-suit-navy-orange-v2.jpg','assets/fast-aperol-studio-suit-orange-navy-v2.jpg');
-  const start=()=>{if(prepared!==id||document.body.dataset.shopScreen!=='product')return;queue=[...new Set(sources.map(media.src))].filter(src=>!cache.has(src));pump();};
+  const start=()=>{if(prepared===id||document.body.dataset.shopScreen!=='product'||window.ACEFORM_SHOP?.selection().product!==id)return;prepared=id;queue=[...new Set(sources.map(media.src))].filter(src=>!cache.has(src));pump();};
   if('requestIdleCallback' in window)requestIdleCallback(start,{timeout:800});else setTimeout(start,100);
  }
  function show(container,value,attributes={}){
