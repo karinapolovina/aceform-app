@@ -16,7 +16,7 @@
    form.hidden=true;$('#deliveryError').hidden=true;
    const d=data.delivery,shipped=d.state==='shipped',collected=d.state==='collected';
    $('#deliveryReceivedTitle').textContent=collected?'Комплект у тебя':shipped?'Твой комплект отправлен':'Данные для доставки получены';
-   $('#deliveryReceivedText').textContent=collected?'Спасибо, что выбираешь ACEFORM. Красивой игры!':shipped?`Способ получения: ${methods[d.method]||'согласован с тобой'}.`:`Способ получения: ${methods[d.method]||'согласуем'}. Проверим детали и свяжемся по указанным контактам. Стоимость доставки согласуем отдельно.`;
+   $('#deliveryReceivedText').textContent=collected?'Спасибо, что выбираешь ACEFORM. Красивой игры!':shipped?`Способ получения: ${methods[d.method]||'согласован с тобой'}.`:`Способ получения: ${methods[d.method]||'согласуем'}. Проверим детали и свяжемся по указанным контактам. Доставку СДЭК оплачиваешь отдельно при получении; самовывоз — по согласованию.`;
    $('#deliveryTracking').hidden=!d.tracking;$('#deliveryTracking').textContent=d.tracking?'Трек-номер: '+d.tracking:'';
   }
  }
@@ -24,7 +24,7 @@
   const m=$('#deliveryMethod').value,needsAddress=m==='cdek'||m==='courier';
   $('#deliveryAddressLabel').hidden=!needsAddress;$('#deliveryAddress').required=needsAddress;
   $('#deliveryAddressTitle').textContent=m==='courier'?'Адрес доставки: улица, дом, квартира':'Адрес или код пункта СДЭК';
-  $('#deliveryMethodHint').textContent={cdek:'Укажи удобный пункт СДЭК. Проверим его перед отправкой.',avito:'Согласуем оформление через Авито отдельно. Здесь заказ на Авито не создаётся; повторно оплачивать комплект не нужно.',courier:'Проверим возможность доставки по твоему адресу и согласуем стоимость.',pickup:'Место и время самовывоза согласуем по указанным контактам.'}[m];
+  $('#deliveryMethodHint').textContent={cdek:'Укажи адрес удобного пункта СДЭК. Доставку оплачиваешь СДЭК при получении. Стоимость уточняется.',avito:'Согласуем оформление через Авито отдельно. Здесь заказ на Авито не создаётся; повторно оплачивать комплект не нужно.',courier:'Проверим возможность доставки по твоему адресу и согласуем стоимость.',pickup:'Место и время самовывоза согласуем по указанным контактам.'}[m];
  }
  $('#deliveryMethod').onchange=methodChanged;
  $('#deliveryOpen').onclick=()=>{if(order?.state!=='paid')return;$('#deliveryStart').hidden=true;form.hidden=false;methodChanged();};
