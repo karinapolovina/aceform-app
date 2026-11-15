@@ -17,8 +17,7 @@
  document.addEventListener('aceform:basket-added',e=>{const all=[...window.ACEFORM_CATALOG,...window.ACEFORM_APEROL_CATALOG];added.querySelector('p').textContent=e.detail.map(s=>{const p=all.find(p=>p.id===s.product);return p.name.split(' · ')[0]+' · '+(s.product==='aperol-suit'?'GRAF '+s.size+' / BUENO '+s.skirtSize:s.product==='aperol-dress'?'EVERT '+s.size+' / MARBLE '+s.shortsSize:s.size);}).join(' + ');added.hidden=false;tidyBasket();});
  const back=make('button' ,'shop-back','← Назад');back.type='button';home.before(back);
  const nav=make('nav','shop-nav','<a href="#shop">Магазин</a><button type="button" id="shopCart">Корзина <span></span></button><a href="#my-orders">Мои заказы</a>');nav.setAttribute('aria-label','Навигация магазина');document.body.append(nav);
- const orders=make('section','shop-orders','<p class="shop-kicker">ACEFORM · ТВОИ ПОКУПКИ</p><h1>Мои заказы</h1><p>Подтверждения и статусы заказов приходят в Telegram. Открой сообщение от ACEFORM и нажми «Мой заказ».</p><a class="primary" href="https://t.me/aceform_bot">Открыть ACEFORM в Telegram ↗</a>');orders.id='shopOrders';detail.after(orders);
- if(!$('#lastPayment').hidden){const last=make('button','secondary','Последний заказ на этом устройстве');last.type='button';last.onclick=()=>$('#lastPayment').click();orders.append(last);}
+ const orders=make('section','shop-orders','');orders.id='shopOrders';detail.after(orders);
  let previous='shop',active='shop';
  function route(){
   const hash=location.hash.slice(1),match=hash.match(/^outfit\/([0-3])$/),base=hash.match(/^product\/(dress|top|skirt|shorts)$/);
@@ -67,6 +66,7 @@
  addEventListener('hashchange',route);
  const start=window.Telegram?.WebApp?.initDataUnsafe?.start_param||new URLSearchParams(location.search).get('tgWebAppStartParam')||'';
  const launch=start.match(/^aperol_(dress|suit)_([01])_/),ask=start.match(/^ask_(top|skirt)_/);
- if(launch)location.hash='outfit/'+(launch[1]==='suit'?(launch[2]==='1'?3:1):launch[2]==='1'?2:0);else if(ask)location.hash='product/'+ask[1];
+ if(start==='my_orders'||new URLSearchParams(location.search).get('screen')==='my-orders')location.hash='my-orders';
+ else if(launch)location.hash='outfit/'+(launch[1]==='suit'?(launch[2]==='1'?3:1):launch[2]==='1'?2:0);else if(ask)location.hash='product/'+ask[1];
  route();
 })();
