@@ -66,6 +66,7 @@
  addEventListener('hashchange',route);
  const start=window.Telegram?.WebApp?.initDataUnsafe?.start_param||new URLSearchParams(location.search).get('tgWebAppStartParam')||'';
  const launch=start.match(/^aperol_(dress|suit)_([01])_/),ask=start.match(/^ask_(top|skirt)_/);
+ if(new URLSearchParams(location.search).get('screen')==='cart')setTimeout(()=>$('#shopCart').click(),0);
  if(start==='my_orders'||new URLSearchParams(location.search).get('screen')==='my-orders')location.hash='my-orders';
  else if(launch)location.hash='outfit/'+(launch[1]==='suit'?(launch[2]==='1'?3:1):launch[2]==='1'?2:0);else if(ask)location.hash='product/'+ask[1];
  route();
