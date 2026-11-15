@@ -1,7 +1,8 @@
 window.ACEFORM_COMMERCE = {
+ aperolShorts(s) {return 'MARBLE: '+(s.color===0?'оранжевые':'тёмно-синие')+(s.extraShorts?(s.color===0?' + тёмно-синие':' + оранжевые')+' · 2 пары':' · 1 пара');},
  basketPrice(items) {
   if(!items.length||items.every(s=>s.product==='dress')||items.some(s=>!['dress','top','skirt','aperol-dress','aperol-suit'].includes(s.product)))return null;
-  const price=s=>s.product==='dress'?(s.bundle==='both'?9500:8000):({'top':2900,'skirt':8900,'aperol-dress':9000,'aperol-suit':11900})[s.product];
+  const price=s=>s.product==='dress'?(s.bundle==='both'?9500:8000):s.product==='aperol-dress'?(s.extraShorts?10500:9000):({'top':2900,'skirt':8900,'aperol-dress':9000,'aperol-suit':11900})[s.product];
   let pairs=items.filter(s=>s.product==='skirt').reduce((n,s)=>n+s.quantity,0),discount=0;
   const lines=items.map(s=>{const unit=price(s),paired=s.product==='top'?Math.min(pairs,s.quantity):0;pairs-=paired;discount+=paired*900;return {selection:s,unit,total:unit*s.quantity-paired*900,paired};});
   const subtotal=items.reduce((n,s)=>n+price(s)*s.quantity,0);

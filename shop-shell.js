@@ -44,6 +44,7 @@
   $('#colorName').textContent=c.label+' · Апероль';inlinePrice.textContent=rub(model.price)+(c.product==='dress'?' · платье + шорты':' · топ + юбка');
   $('#colors').querySelectorAll('button').forEach(b=>{const selected=b.dataset.aperolIndex===String(c.index);b.classList.toggle('selected',selected);b.setAttribute('aria-pressed',String(selected));});
   if(!inlineLimited.querySelector('form')){const note=make('p','shop-inline-note',c.product==='dress'?'Платье + шорты':'Топ + юбка · только комплектом');inlineLimited.append(note,figures[c.index].querySelector('form'));}
+  syncPrice();
  }
  function chooseLimited(c,id){restoreForms();limited={...c,product:id};applyLimited();}
  function collectionColors(id){
@@ -55,7 +56,8 @@
  window.ACEFORM_STOREFRONT={open(id){location.hash='product/'+id;},colors:collectionColors,regularColor:resetLimited};
 
  const inlinePrice=make('p','shop-product-price','');
- const syncPrice=()=>{inlinePrice.textContent=limited?rub(limited.product==='dress'?9000:11900)+(limited.product==='dress'?' · платье + шорты':' · топ + юбка'):$('#price').textContent;$('#purchaseOptions').prepend(inlinePrice);};
+ const syncPrice=()=>{inlinePrice.textContent=limited?rub(limited.product==='dress'?(inlineLimited.querySelector('[name=extraShorts]')?.checked?10500:9000):11900)+(limited.product==='dress'?' · платье + шорты':' · топ + юбка'):$('#price').textContent;$('#purchaseOptions').prepend(inlinePrice);};
+ document.addEventListener('aceform:aperol-price',syncPrice);
  new MutationObserver(syncPrice).observe($('#price'),{childList:true,characterData:true,subtree:true});
  const measureNav=()=>document.documentElement.style.setProperty('--shop-nav-height',nav.getBoundingClientRect().height+'px');
  new ResizeObserver(measureNav).observe(nav);measureNav();
