@@ -10,7 +10,11 @@ for(const [tops,skirts,total] of [[1,0,2900],[0,1,8900],[2,1,13800],[1,2,19800],
  const price=c.basketPrice(items);assert.equal(price.total,total);assert.equal(price.lines.reduce((n,l)=>n+l.total,0),total);
  assert.equal(c.basketPrice(items.reverse()).total,total);
 }
-assert.equal(c.basketPrice([item('top',1),item('dress',1)]),null);
+assert.equal(c.basketPrice([item('top',1),item('dress',1)]).total,10900);
+assert.equal(c.basketPrice([{...item('dress',1),bundle:'both'},item('aperol-suit',1)]).total,21400);
+assert.equal(c.basketPrice([item('dress',1),item('aperol-suit',1)]).total,19900);
+assert.equal(c.basketPrice([item('dress',1)]),null);
+assert.equal(c.basketPrice([item('shorts',1),item('aperol-suit',1)]),null);
 assert.equal(c.basketPrice([]),null);
 assert(!catalog.some(p=>p.colors.some(c=>/оранж/i.test(c[0]))));
 console.log('Pricing passed: 24 color pairs, 6 quantity scenarios in both orders, standalone prices, EVERT unchanged, no orange.');

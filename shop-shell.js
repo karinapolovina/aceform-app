@@ -42,7 +42,7 @@
   const src=['assets/aperol-studio-dress-navy-v1.jpg','assets/aperol-studio-suit-navy-orange-v2.jpg','assets/aperol-studio-dress-orange-v1.jpg','assets/aperol-studio-suit-orange-navy-v2.jpg'][c.index];
   $('#productDetails').classList.add('limited-selection');inlineLimited.hidden=false;$('#shopProductDescription').textContent=window.ACEFORM_DESCRIPTIONS[c.product==='dress'?'aperolDress':'aperolSuit'].text;
   const img=document.createElement('img');img.className='fit-main';img.src=src;img.alt=model.name+' · '+c.label;$('#preview').replaceChildren(img);
-  $('#colorName').textContent=c.label+' · Апероль';inlinePrice.textContent=rub(model.price)+' · за комплект';
+  $('#colorName').textContent=c.label+' · Апероль';inlinePrice.textContent=rub(model.price)+(c.product==='dress'?' · платье + шорты':' · топ + юбка');
   $('#colors').querySelectorAll('button').forEach(b=>{const selected=b.dataset.aperolIndex===String(c.index);b.classList.toggle('selected',selected);b.setAttribute('aria-pressed',String(selected));});
   if(!inlineLimited.querySelector('form')){const note=make('p','shop-inline-note',c.product==='dress'?'Платье + шорты':'Топ + юбка · только комплектом');inlineLimited.append(note,figures[c.index].querySelector('form'));}
  }
@@ -56,7 +56,7 @@
  window.ACEFORM_STOREFRONT={open(id){location.hash='product/'+id;},colors:collectionColors,regularColor:resetLimited};
 
  const inlinePrice=make('p','shop-product-price','');
- const syncPrice=()=>{inlinePrice.textContent=limited?rub(limited.product==='dress'?9000:11900)+' · за комплект':$('#price').textContent;$('#purchaseOptions').prepend(inlinePrice);};
+ const syncPrice=()=>{inlinePrice.textContent=limited?rub(limited.product==='dress'?9000:11900)+(limited.product==='dress'?' · платье + шорты':' · топ + юбка'):$('#price').textContent;$('#purchaseOptions').prepend(inlinePrice);};
  new MutationObserver(syncPrice).observe($('#price'),{childList:true,characterData:true,subtree:true});
  const measureNav=()=>document.documentElement.style.setProperty('--shop-nav-height',nav.getBoundingClientRect().height+'px');
  new ResizeObserver(measureNav).observe(nav);measureNav();

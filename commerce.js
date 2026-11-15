@@ -1,9 +1,10 @@
 window.ACEFORM_COMMERCE = {
  basketPrice(items) {
-  if(!items.length||items.some(s=>!['top','skirt','aperol-dress','aperol-suit'].includes(s.product)))return null;
+  if(!items.length||items.every(s=>s.product==='dress')||items.some(s=>!['dress','top','skirt','aperol-dress','aperol-suit'].includes(s.product)))return null;
+  const price=s=>s.product==='dress'?(s.bundle==='both'?9500:8000):({'top':2900,'skirt':8900,'aperol-dress':9000,'aperol-suit':11900})[s.product];
   let pairs=items.filter(s=>s.product==='skirt').reduce((n,s)=>n+s.quantity,0),discount=0;
-  const lines=items.map(s=>{const unit=({'top':2900,'skirt':8900,'aperol-dress':9000,'aperol-suit':11900})[s.product],paired=s.product==='top'?Math.min(pairs,s.quantity):0;pairs-=paired;discount+=paired*900;return {selection:s,unit,total:unit*s.quantity-paired*900,paired};});
-  const subtotal=items.reduce((n,s)=>n+({'top':2900,'skirt':8900,'aperol-dress':9000,'aperol-suit':11900})[s.product]*s.quantity,0);
+  const lines=items.map(s=>{const unit=price(s),paired=s.product==='top'?Math.min(pairs,s.quantity):0;pairs-=paired;discount+=paired*900;return {selection:s,unit,total:unit*s.quantity-paired*900,paired};});
+  const subtotal=items.reduce((n,s)=>n+price(s)*s.quantity,0);
   return {lines,subtotal,discount,total:subtotal-discount};
  },
  bundleLimit(bundle,size,inventory,included,dressQuantity) {
