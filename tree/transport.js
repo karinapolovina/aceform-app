@@ -11,7 +11,8 @@
   ready=new Promise((resolve,reject)=>{
    if(location.origin!==ORIGIN){reject(Error('Этот сервис подключается только с официальной страницы ACEFORM.'));return;}
    const endpoint=window.ACEFORM_TREE_API;if(!endpoint||!/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(endpoint)){reject(Error('Хранилище ещё подключается.'));return;}
-   const frame=document.createElement('iframe');frame.hidden=true;frame.title='Защищённое соединение с хранилищем ACEFORM';
+   const frame=document.createElement('iframe');// Keep the bridge rendered: WebKit can suspend a display:none iframe.
+   frame.setAttribute('aria-hidden','true');frame.tabIndex=-1;frame.style.cssText='position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:.01;pointer-events:none;';frame.title='Защищённое соединение с хранилищем ACEFORM';
    const url=new URL(endpoint);url.searchParams.set('nonce',nonce);frame.src=url.href;
    const timer=setTimeout(()=>{disconnect();reject(Error('Не удалось подключиться к хранилищу Google. Попробуй ещё раз.'));},25000);
    function receive(event){
