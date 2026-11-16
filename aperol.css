@@ -30,3 +30,5 @@
 
 .aperol-cover{width:100%;min-width:0}
 @media(max-width:400px){header{flex-wrap:wrap}header .brand{min-width:0}header .tag{margin-left:auto}header .basket-open{margin-left:auto;flex-shrink:0}}
+
+.aperol-capsule{margin:28px 0;padding:24px 18px;background:#f2e9da;border-radius:18px}.aperol-capsule h3{font-size:26px;line-height:1.2;margin:10px 0 20px}.capsule-photos{display:grid;grid-template-columns:1fr 1fr;gap:10px}.capsule-photos img{width:100%;border-radius:12px;aspect-ratio:3/4;object-fit:cover}.aperol-capsule .aperol-sizes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.aperol-capsule select{width:100%;min-width:0}.aperol-capsule label{min-width:0}.aperol-capsule del{font-size:16px;opacity:.55;margin-right:8px}.aperol-capsule .primary{width:100%;margin-top:16px}
