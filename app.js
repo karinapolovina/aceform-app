@@ -1,7 +1,7 @@
 // Customer order links preserve the signed Telegram launch when opening the receipt.
 {const tg=window.Telegram?.WebApp,start=tg?.initDataUnsafe?.start_param||new URLSearchParams(location.search).get('tgWebAppStartParam')||'';if(!['my-orders','shop','cart'].includes(new URLSearchParams(location.search).get('screen'))&&/^(order|manage)_[a-f0-9]{32}$/.test(start)){const target=new URL((start.startsWith('manage_')?'orders.html?order='+start.slice(7):'my-order.html?order='+start.slice(6)),location.href),fragment=new URLSearchParams();fragment.set('tgWebAppData',tg?.initData||'');fragment.set('tgWebAppVersion',tg?.version||'8.0');fragment.set('tgWebAppPlatform',tg?.platform||'unknown');target.hash=fragment.toString();location.replace(target.href);}}
 const $ = s => document.querySelector(s);
-const products = window.ACEFORM_CATALOG;
+const products = window.ACEFORM_CATALOG.filter(p=>p.id!=='shorts');
 const sizes = ['S','M','L'];
 const tg = window.Telegram?.WebApp;
 if (tg?.initData) {try {tg.ready();tg.expand();tg.setHeaderColor('#f7f7f0');tg.setBackgroundColor('#f7f7f0');}catch {}}

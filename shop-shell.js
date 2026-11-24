@@ -3,7 +3,7 @@
  'use strict';
  const $=s=>document.querySelector(s),main=$('main'),section=$('#april'),gallery=section.querySelector('.april-gallery');
  const figures=[...gallery.children],rub=n=>n.toLocaleString('ru-RU')+' ₽';
- const outfits=[{title:'EVERT + MARBLE',color:'Тёмно-синий',price:9000},{title:'GRAF + BUENO',color:'Тёмно-синий / оранжевый',price:11900},{title:'EVERT + MARBLE',color:'Оранжевый',price:9000},{title:'GRAF + BUENO',color:'Оранжевый / тёмно-синий',price:11900}];
+ const outfits=[{title:'EVERT + MARBLE',color:'Тёмно-синий',price:10000},{title:'GRAF + BUENO',color:'Тёмно-синий / оранжевый',price:12900},{title:'EVERT + MARBLE',color:'Оранжевый',price:10000},{title:'GRAF + BUENO',color:'Оранжевый / тёмно-синий',price:12900}];
  const make=(tag,cls,html)=>{const e=document.createElement(tag);e.className=cls;e.innerHTML=html;return e;};
  const home=$('#shopHome')||make('section','shop-home','<p class="shop-kicker">ТВОЯ ФОРМА ИГРЫ</p><h1>На корте.<br>В своём стиле.</h1>');home.id='shopHome';
  const hero=section.querySelector('.aperol-cover').cloneNode(true);hero.querySelector('h2').removeAttribute('id');hero.querySelector('a').href='#april';hero.querySelector('a').textContent='Смотреть коллекцию →';if(!home.querySelector('.aperol-cover'))home.append(hero);$('header').after(home);
@@ -20,7 +20,7 @@
  const orders=make('section','shop-orders','');orders.id='shopOrders';detail.after(orders);
  let previous='shop',active='shop';
  function route(){
-  const hash=location.hash.slice(1),match=hash.match(/^outfit\/([0-3])$/),base=hash.match(/^product\/(dress|top|skirt|shorts)$/);
+  const hash=location.hash.slice(1),match=hash.match(/^outfit\/([0-3])$/),base=hash.match(/^product\/(dress|top|skirt)$/);
   active=match?'outfit':base?'product':hash==='april'||hash==='aperolLooks'?'collection':hash==='my-orders'?'orders':'shop';
   resetLimited();document.body.dataset.shopScreen=active;added.hidden=true;
   if(active==='collection')cards.querySelectorAll('img').forEach((img,i)=>{if(i<2){img.fetchPriority='high';img.loading='eager';}});
@@ -50,14 +50,14 @@
  function chooseLimited(c,id){restoreForms();limited={...c,product:id};applyLimited();}
  function collectionColors(id){
   const colors=id==='dress'?[{label:'Тёмно-синий / оранжевый',color:'#15325c',accent:'#e76123',index:0},{label:'Оранжевый / тёмно-синий',color:'#e76123',accent:'#15325c',index:2}]:id==='top'?[{label:'Тёмно-синий',color:'#15325c',index:1},{label:'Оранжевый',color:'#e76123',index:3}]:id==='skirt'?[{label:'Оранжевый',color:'#e76123',index:1},{label:'Тёмно-синий',color:'#15325c',index:3}]:[];
-  for(const c of colors){const button=make('button','swatch shop-limited-swatch','<span class="shop-limited-mark" aria-hidden="true">🍹</span>');button.type='button';button.style.setProperty('--color',c.accent?`linear-gradient(135deg,${c.color} 60%,${c.accent} 60%)`:c.color);const label=c.label+(id==='dress'?' · Апероль · комплект 9 000 ₽':' · костюм GRAF + BUENO 11 900 ₽');button.setAttribute('aria-label',label);button.title=label;button.dataset.aperolIndex=String(c.index);button.onclick=()=>chooseLimited(c,id);$('#colors').append(button);}
+  for(const c of colors){const button=make('button','swatch shop-limited-swatch','<span class="shop-limited-mark" aria-hidden="true">🍹</span>');button.type='button';button.style.setProperty('--color',c.accent?`linear-gradient(135deg,${c.color} 60%,${c.accent} 60%)`:c.color);const label=c.label+(id==='dress'?' · Апероль · комплект 10 000 ₽':' · костюм GRAF + BUENO 12 900 ₽');button.setAttribute('aria-label',label);button.title=label;button.dataset.aperolIndex=String(c.index);button.onclick=()=>chooseLimited(c,id);$('#colors').append(button);}
   if(limited)queueMicrotask(applyLimited);
 
  }
  window.ACEFORM_STOREFRONT={open(id){location.hash='product/'+id;},colors:collectionColors,regularColor:resetLimited};
 
  const inlinePrice=make('p','shop-product-price','');
- const syncPrice=()=>{inlinePrice.textContent=limited?rub(limited.product==='dress'?(inlineLimited.querySelector('[name=extraShorts]')?.checked?10500:9000):11900)+(limited.product==='dress'?' · платье + шорты':' · топ + юбка'):$('#price').textContent;$('#purchaseOptions').prepend(inlinePrice);};
+ const syncPrice=()=>{inlinePrice.textContent=limited?rub(limited.product==='dress'?10000:12900)+(limited.product==='dress'?' · платье + шорты':' · топ + юбка'):$('#price').textContent;$('#purchaseOptions').prepend(inlinePrice);};
  document.addEventListener('aceform:aperol-price',syncPrice);
  new MutationObserver(syncPrice).observe($('#price'),{childList:true,characterData:true,subtree:true});
  const measureNav=()=>document.documentElement.style.setProperty('--shop-nav-height',nav.getBoundingClientRect().height+'px');

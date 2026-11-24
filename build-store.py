@@ -16,7 +16,7 @@ cover=cover.replace(' id="aprilTitle"','').replace('href="#aperolLooks">Выбр
 home='<section class="shop-home" id="shopHome"><p class="shop-kicker">ТВОЯ ФОРМА ИГРЫ</p><h1>На корте.<br>В своём стиле.</h1>'+cover+'</section>'
 html=html.replace('</header>','</header>'+home,1).replace('<body>','<body data-shop-screen="shop">',1)
 # Ordinary catalog cards remain useful links before enhancement by app.js.
-products=[('dress','Платье EVERT · Эверт','assets/fast-dress-black-catalog.webp','8 000 ₽ · платье + шорты'),('skirt','Юбка BUENO · Буэно','assets/fast-rococo-white-pink-catalog.webp','8 900 ₽'),('top','Топ GRAF · Граф','assets/fast-top-white-catalog.webp','2 900 ₽'),('shorts','Шорты MARBLE · Марбл','assets/fast-shorts-pair.webp','В наличии')]
+products=[('dress','Платье EVERT · Эверт','assets/fast-dress-black-catalog.webp','8 000 ₽ · платье + шорты'),('skirt','Юбка BUENO · Буэно','assets/fast-rococo-white-pink-catalog.webp','7 900 ₽'),('top','Топ GRAF · Граф','assets/fast-top-white-catalog.webp','3 900 ₽')]
 cards=''.join('<div class="product-card"><a class="product" href="#product/'+id+'" style="display:block;color:inherit;text-decoration:none"><span class="thumb"><img class="garment-photo catalog-photo" loading="lazy" decoding="async" fetchpriority="low" src="'+image+'" alt="'+name+'"></span><b>'+name+'</b><span class="card-price">'+price+'</span></a></div>' for id,name,image,price in products)
 html=html.replace('<div class="products" id="products"></div>','<div class="products" id="products">'+cards+'</div>')
 nav='<nav class="shop-nav" aria-label="Навигация магазина"><a href="#shop" aria-current="page">Магазин</a><button type="button" id="shopCart">Корзина <span></span></button><a href="#my-orders">Мои заказы</a></nav>'
