@@ -1,7 +1,7 @@
 // Customer order links preserve the signed Telegram launch when opening the receipt.
 {const tg=window.Telegram?.WebApp,start=tg?.initDataUnsafe?.start_param||new URLSearchParams(location.search).get('tgWebAppStartParam')||'';if(!['my-orders','shop','cart'].includes(new URLSearchParams(location.search).get('screen'))&&/^(order|manage)_[a-f0-9]{32}$/.test(start)){const target=new URL((start.startsWith('manage_')?'orders.html?order='+start.slice(7):'my-order.html?order='+start.slice(6)),location.href),fragment=new URLSearchParams();fragment.set('tgWebAppData',tg?.initData||'');fragment.set('tgWebAppVersion',tg?.version||'8.0');fragment.set('tgWebAppPlatform',tg?.platform||'unknown');target.hash=fragment.toString();location.replace(target.href);}}
 const $ = s => document.querySelector(s);
-const products = window.ACEFORM_CATALOG.filter(p=>p.id!=='shorts');
+const products = window.ACEFORM_CATALOG;
 const sizes = ['S','M','L'];
 const tg = window.Telegram?.WebApp;
 if (tg?.initData) {try {tg.ready();tg.expand();tg.setHeaderColor('#f7f7f0');tg.setBackgroundColor('#f7f7f0');}catch {}}
@@ -37,7 +37,7 @@ function stockRows(p) {return commerce.stockRows(p,inventory,receivedAt>0);}
 function inStock() {return commerce.inStock(current(),variant(),stockFresh());}
 function bundleLimit() {return commerce.bundleLimit(state.bundle,state.shortsSize,inventory,checkoutSettings.includedShorts,variant()?.quantity||0);}
 function orderLimit() {return state.mode==='stock'?(current().id==='dress'?bundleLimit():commerce.orderLimit(current(),variant())):99;}
-function visibleProducts() {return products.filter(p=>commerce.matchesFilter(p,state.filter,inventory,receivedAt>0));}
+function visibleProducts() {return products.filter(p=>p.id!=='shorts'&&commerce.matchesFilter(p,state.filter,inventory,receivedAt>0));}
 function bundleNeedsConfirmation() {return current().id==='dress'&&(state.shortsSize!==state.size||bundleLimit()<1);}
 function unitPrice() {return commerce.unitPrice(current(),state.bundle,variant());}
 function totalPrice(){const subtotal=unitPrice()*state.quantity;return subtotal-(window.ACEFORM_CERTIFICATE?.discount(subtotal)||0);}

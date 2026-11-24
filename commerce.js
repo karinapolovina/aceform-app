@@ -1,13 +1,18 @@
 window.ACEFORM_COMMERCE = {
+ // Approved 24 November 2026; base outfit price confirmed in conversation.
+ outfitPrice:12900,
+ outfitAvailability(topColor,skirtColor) {return topColor===0&&[0,1].includes(skirtColor)?'Цвет в наличии · размер подтвердим':'Предзаказ · срок согласуем';},
  aperolShorts(s) {return 'MARBLE: '+(s.color===0?'оранжевые':'тёмно-синие')+' · 1 пара';},
  basketPrice(items) {
   if(!items.length||items.every(s=>s.product==='dress')||items.some(s=>!['dress','top','skirt','aperol-dress','aperol-suit'].includes(s.product)))return null;
-  const price=s=>s.product==='dress'?(s.bundle==='both'?9500:8000):s.product==='aperol-dress'?10000:({'top':3900,'skirt':7900,'aperol-dress':10000,'aperol-suit':12900})[s.product];
+  if(items.some(s=>s.product==='aperol-dress'&&s.extraShorts))throw Error('EVERT APEROL комплектуется только одной парой контрастных шорт.');
+  if(items.some(s=>s.product==='aperol-suit'&&s.skirtSize&&s.skirtSize!==s.size))throw Error('Для костюма APEROL выбери один общий размер.');
+  const price=s=>s.product==='dress'?(s.bundle==='both'?9500:8000):({'top':3900,'skirt':7900,'aperol-dress':10000,'aperol-suit':12900})[s.product];
   let capsules=items.filter(s=>s.product==='aperol-dress').reduce((n,s)=>n+s.quantity,0);
-  let pairs=items.filter(s=>s.product==='skirt').reduce((n,s)=>n+s.quantity,0),discount=0;
-  const lines=items.map(s=>{const unit=price(s),paired=s.product==='top'?Math.min(pairs,s.quantity):0;pairs-=paired;const capsulePairs=s.product==='aperol-suit'?Math.min(capsules,s.quantity):0;capsules-=capsulePairs;discount+=paired*800+capsulePairs*2290;return {selection:s,unit,total:unit*s.quantity-paired*800-capsulePairs*2290,paired,capsulePairs};});
+  let pairs=items.filter(s=>s.product==='skirt').reduce((n,s)=>n+s.quantity,0),discount=0,bundleAdjustment=0;
+  const lines=items.map(s=>{const unit=price(s),paired=s.product==='top'?Math.min(pairs,s.quantity):0;pairs-=paired;const capsulePairs=s.product==='aperol-suit'?Math.min(capsules,s.quantity):0;capsules-=capsulePairs;const adjustment=paired*1100;bundleAdjustment+=adjustment;discount+=capsulePairs*2290;return {selection:s,unit,total:unit*s.quantity+adjustment-capsulePairs*2290,paired,capsulePairs};});
   const subtotal=items.reduce((n,s)=>n+price(s)*s.quantity,0);
-  return {lines,subtotal,discount,total:subtotal-discount};
+  return {lines,subtotal,discount,bundleAdjustment,total:subtotal+bundleAdjustment-discount};
  },
  bundleLimit(bundle,size,inventory,included,dressQuantity) {
   if(!['white','black','either'].includes(included))return 0;

@@ -14,13 +14,13 @@
  const baseInfo=make('div','shop-info shop-base-info','<details><summary>Об изделии</summary><p id="shopProductDescription"></p></details><details><summary>Доставка и срок</summary><p>СДЭК, курьер или самовывоз. Срок и стоимость согласуем при оформлении.</p></details>');$('#productDetails').after(baseInfo);
  const added=make('aside','shop-added','<div role="status"><strong>Добавлено в корзину</strong><p></p></div><div class="shop-added-actions"><button type="button" class="secondary">Продолжить выбор</button><button type="button" class="primary">В корзину →</button></div>');added.hidden=true;document.body.append(added);
  added.querySelector('.secondary').onclick=()=>{added.hidden=true;};added.querySelector('.primary').onclick=()=>{added.hidden=true;window.ACEFORM_REQUEST_CART.openCart();};
- document.addEventListener('aceform:basket-added',e=>{const all=[...window.ACEFORM_CATALOG,...window.ACEFORM_APEROL_CATALOG];added.querySelector('p').textContent=e.detail.map(s=>{const p=all.find(p=>p.id===s.product);return p.name.split(' · ')[0]+' · '+(s.product==='aperol-suit'?'GRAF '+s.size+' / BUENO '+s.skirtSize:s.product==='aperol-dress'?'EVERT '+s.size+' / MARBLE '+s.shortsSize:s.size);}).join(' + ');added.hidden=false;tidyBasket();});
+ document.addEventListener('aceform:basket-added',e=>{const all=[...window.ACEFORM_CATALOG,...window.ACEFORM_APEROL_CATALOG];added.querySelector('p').textContent=e.detail.map(s=>{const p=all.find(p=>p.id===s.product);return p.name.split(' · ')[0]+' · '+(s.product==='aperol-suit'?'GRAF + BUENO '+s.size:s.product==='aperol-dress'?'EVERT '+s.size+' / MARBLE '+s.shortsSize:s.size);}).join(' + ');added.hidden=false;tidyBasket();});
  const back=make('button' ,'shop-back','← Назад');back.type='button';home.before(back);
  const nav=$('.shop-nav')||make('nav','shop-nav','<a href="#shop">Магазин</a><button type="button" id="shopCart">Корзина <span></span></button><a href="#my-orders">Мои заказы</a>');nav.setAttribute('aria-label','Навигация магазина');document.body.append(nav);
  const orders=make('section','shop-orders','');orders.id='shopOrders';detail.after(orders);
  let previous='shop',active='shop';
  function route(){
-  const hash=location.hash.slice(1),match=hash.match(/^outfit\/([0-3])$/),base=hash.match(/^product\/(dress|top|skirt)$/);
+  const hash=location.hash.slice(1),match=hash.match(/^outfit\/([0-3])$/),base=hash.match(/^product\/(dress|top|skirt|shorts)$/);
   active=match?'outfit':base?'product':hash==='april'||hash==='aperolLooks'?'collection':hash==='my-orders'?'orders':'shop';
   resetLimited();document.body.dataset.shopScreen=active;added.hidden=true;
   if(active==='collection')cards.querySelectorAll('img').forEach((img,i)=>{if(i<2){img.fetchPriority='high';img.loading='eager';}});
