@@ -38,7 +38,7 @@ window.ACEFORM_DESCRIPTIONS = {
   history:'Муза модели — Штеффи Граф. Её мощный удар справа стал для нас образом силы и концентрации. В GRAF мы передали это настроение через собранный силуэт и выразительные линии — для секунды перед подачей, когда всё внимание принадлежит твоей игре.',
   source:'https://www.tennisfame.com/hall-of-famers/inductees/stefanie-graf/',
   sourceLabel:'О Штеффи Граф · International Tennis Hall of Fame',
-  note:'Изготавливается по предзаказу. Юбка и шорты заказываются отдельно.'
+  note:'Изготавливается по предзаказу. Юбка заказывается отдельно. MARBLE входят в комплект EVERT.'
  },
  shorts: {
   title:'Своя форма игры.',
@@ -51,6 +51,6 @@ window.ACEFORM_DESCRIPTIONS = {
   history:'Муза модели — Элис Марбл, одна из теннисисток, выбравших шорты вместо привычной юбки. В 1939 году она выиграла в шортах три уимблдонских титула: в одиночном, парном и смешанном парном разрядах. Для ACEFORM эта история — о свободе выбирать собственную форму игры. Так появились MARBLE.',
   source:'https://www.usopen.org/en_US/news/articles/2023-05-24/milestones_in_equality_the_evolution_of_the_tennis_fashion_statement.html',
   sourceLabel:'Элис Марбл и теннисная мода · US Open',
-  note:'MARBLE можно заказать отдельно. Белые и чёрные шорты в наличии.'
+  note:'MARBLE входят в комплект EVERT и отдельно не продаются.'
  }
 };
