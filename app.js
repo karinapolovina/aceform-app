@@ -63,7 +63,7 @@ function render() {
  if(visible.length&&!visible.includes(current()))selectProduct(products.indexOf(visible[0]));
  if(state.filter==='stock'&&visible.length&&!stockRows(current()).some(v=>v.color===current().colors[state.color][0]&&v.size===state.size))selectProduct(state.product);
  const p=current(),v=variant(),a=availability(),hasSelection=visible.length>0;const isDress=p.id==='dress',inquiry=preorderOnly(p);$('#inquiryIntro').hidden=!inquiry;$('#inquiryTitle').textContent=p.name;$('#quantityAdvanced').hidden=false;$('#productDetails').classList.toggle('dress-flow',isDress);$('#productDetails').classList.toggle('inquiry-flow',inquiry);$('#dressIntro').hidden=!isDress;$('#dressAnswers').hidden=!isDress;$('#dressCheckoutHint').hidden=!isDress;$('#fitGallery').querySelector('h2').textContent=isDress?'Другие ракурсы и детали':'На фигуре';$('#generalNote').hidden=isDress||inquiry;$('#generalDeliveryNote').hidden=isDress||inquiry;$('#sizeHint').textContent=isDress?(state.sizeChosen?'Размер платья: '+state.size+'. Шорты: '+state.shortsSize+'.':'Выбери свой размер. Шорты будут того же размера.'):inquiry?'Если сомневаешься в размере, поможем подобрать при ответе.':'Размер можно уточнить при согласовании предзаказа.';window.ACEFORM_ANALYTICS?.view({product:p.id,color:state.color,size:state.size,bundle:p.id==='dress'?state.bundle:''});
- if(isDress){$('#dressAnswers').after($('#fitGallery'));$('#fitGallery').after($('#productStory'));}else if(inquiry){$('#purchaseOptions').after($('#fitGallery'));$('#fitGallery').after($('#productStory'));}else{$('#purchaseOptions').before($('#fitGallery'));$('#purchaseOptions').before($('#productStory'));}$('#quantityAdvanced').querySelector('summary').textContent=isDress?'Количество комплектов':'Количество';$('#productDetails').hidden=!hasSelection;$('#review').disabled=!hasSelection;
+ if(isDress){$('#purchaseOptions').before($('#fitGallery'));$('#dressAnswers').after($('#productStory'));}else if(inquiry){$('#purchaseOptions').after($('#fitGallery'));$('#fitGallery').after($('#productStory'));}else{$('#purchaseOptions').before($('#fitGallery'));$('#purchaseOptions').before($('#productStory'));}$('#quantityAdvanced').querySelector('summary').textContent=isDress?'Количество комплектов':'Количество';$('#productDetails').hidden=!hasSelection;$('#review').disabled=!hasSelection;
  $('#filterHint').textContent=state.filter==='stock'?(feedState==='loading'?'Обновляем наличие. Выбранный комплект сохранён.':feedState==='error'?'Не удалось подтвердить наличие. Обновите остатки перед оплатой.':hasSelection?'Показаны изделия в наличии. Выберите цвет и размер.':'Сейчас нет изделий с подтверждённым наличием. Посмотрите предзаказ или все изделия.'):'';
  buttons($('#catalogFilters'),['Все','В наличии','Предзаказ'],['all','stock','preorder'].indexOf(state.filter),i=>{state.filter=['all','stock','preorder'][i];state.quantity=1;render()});
 
@@ -153,7 +153,19 @@ async function submitDirectPayment() {
 }
 function selectedForBasket(){return {product:current().id,color:state.color,size:state.size,shortsSize:state.shortsSize,bundle:state.bundle,quantity:state.quantity,mode:state.mode};}
 function basketCanPay(s){if(s.product!=='dress'||!stockFresh()||s.shortsSize!==s.size)return false;const p=products.find(p=>p.id==='dress'),v=inventory.find(v=>v.product===(p.stockName||p.name)&&v.color===p.colors[s.color]?.[0]&&v.size===s.size);return !!v&&Number.isInteger(v.quantity)&&commerce.bundleLimit(s.bundle,s.shortsSize,inventory,checkoutSettings.includedShorts,v.quantity)>=s.quantity;}
-window.ACEFORM_SHOP={openProduct(id){renderedPreview='';const i=products.findIndex(p=>p.id===id);if(i<0)return;state.filter='all';selectProduct(i);render();},selection:selectedForBasket,canPay:basketCanPay,stockLoading:()=>feedState==='loading',async pay(s){if(!basketCanPay(s)){window.ACEFORM_REQUEST_CART.openCart();return;}state={...state,...s,product:products.findIndex(p=>p.id===s.product),sizeChosen:true,shortsSizeCustomized:true,mode:'stock'};render();await submitDirectPayment();},request(selection){requestSelection=selection;window.ACEFORM_PREORDER.open(selection);$('#orderForm').classList.remove('hidden');$('#result').classList.add('hidden');$('#orderDialog').showModal();}};
+window.ACEFORM_SHOP={openProduct(id, options){
+ renderedPreview='';const i=products.findIndex(p=>p.id===id);if(i<0)return;
+ state.filter='all';selectProduct(i);
+ if(id==='dress' && options){
+  const color=['black','white','red'].indexOf(options.get('color'));
+  const size=options.get('size');
+  if(color>=0)state.color=color;
+  if(sizes.includes(size)){
+   state.size=size;state.shortsSize=size;state.sizeChosen=true;state.shortsSizeCustomized=false;
+  }
+ }
+ render();
+},selection:selectedForBasket,canPay:basketCanPay,stockLoading:()=>feedState==='loading',async pay(s){if(!basketCanPay(s)){window.ACEFORM_REQUEST_CART.openCart();return;}state={...state,...s,product:products.findIndex(p=>p.id===s.product),sizeChosen:true,shortsSizeCustomized:true,mode:'stock'};render();await submitDirectPayment();},request(selection){requestSelection=selection;window.ACEFORM_PREORDER.open(selection);$('#orderForm').classList.remove('hidden');$('#result').classList.add('hidden');$('#orderDialog').showModal();}};
 $('#review').onclick=()=>{render();if(current().id==='dress'&&!state.sizeChosen){$('#sizeChoice').scrollIntoView({behavior:'smooth',block:'start'});return;}try{window.ACEFORM_REQUEST_CART.add([selectedForBasket()]);}catch(e){$('#checkoutError').hidden=false;$('#checkoutError').textContent=e.message;window.ACEFORM_REQUEST_CART.openCart();}};
 $('#orderForm').onsubmit=e=>{e.preventDefault();if(requestSelection)window.ACEFORM_PREORDER.submit(requestSelection);};
 function openSizeGuide() {

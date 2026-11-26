@@ -20,12 +20,12 @@
  const orders=make('section','shop-orders','');orders.id='shopOrders';detail.after(orders);
  let previous='shop',active='shop';
  function route(){
-  const hash=location.hash.slice(1),match=hash.match(/^outfit\/([0-3])$/),base=hash.match(/^product\/(dress|top|skirt|shorts)$/);
+  const hash=location.hash.slice(1),match=hash.match(/^outfit\/([0-3])$/),base=hash.match(/^product\/(dress|top|skirt|shorts)(?:\?([^#]+))?$/);
   active=match?'outfit':base?'product':hash==='april'||hash==='aperolLooks'?'collection':hash==='my-orders'?'orders':'shop';
   resetLimited();document.body.dataset.shopScreen=active;added.hidden=true;
   if(active==='collection')cards.querySelectorAll('img').forEach((img,i)=>{if(i<2){img.fetchPriority='high';img.loading='eager';}});
   if(match){const figure=figures[Number(match[1])],img=figure.querySelector('img');img.fetchPriority='high';img.loading='eager';detail.replaceChildren(figure);previous='april';}
-  if(base){window.ACEFORM_SHOP.openProduct(base[1]);window.ACEFORM_MEDIA.prepareProduct(base[1]);syncPrice();$('#shopProductDescription').textContent=window.ACEFORM_DESCRIPTIONS[base[1]]?.text||'';previous='shop';}
+  if(base){window.ACEFORM_SHOP.openProduct(base[1],base[2]?new URLSearchParams(base[2]):null);if(base[2])history.replaceState(history.state,'','#product/'+base[1]);window.ACEFORM_MEDIA.prepareProduct(base[1]);syncPrice();$('#shopProductDescription').textContent=window.ACEFORM_DESCRIPTIONS[base[1]]?.text||'';previous='shop';}
   back.hidden=active==='shop';back.textContent=active==='outfit'?'← Коллекция «Апероль»':'← В магазин';
   nav.querySelectorAll('a').forEach(a=>a.setAttribute('aria-current',(a.hash==='#my-orders'?active==='orders':['shop','collection','outfit','product'].includes(active))?'page':'false'));
   window.scrollTo({top:0,behavior:'instant'});
